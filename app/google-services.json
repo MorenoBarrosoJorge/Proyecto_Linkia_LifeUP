@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "797422758220",
+    "project_id": "betalifeup",
+    "firebase_url": "https://betalifeup-default-rtdb.europe-west1.firebasedatabase.app",
+    "storage_bucket": "betalifeup.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797422758220:android:5737e97b1a5af71f18c7e9",
+        "android_client_info": {
+          "package_name": "com.example.betalifeup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAxGXtA8mPHSeqTQv04X1AozJGDmLj0-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
