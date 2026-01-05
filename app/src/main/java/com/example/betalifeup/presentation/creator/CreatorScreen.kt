@@ -17,7 +17,9 @@ import androidx.compose.material3.Button
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -47,30 +49,22 @@ fun subirMeta(nombreMeta: String, descripcionMeta: String) { // Función que rec
 }
 
 @Composable
-fun CreatorScreen() {
-    var name by remember { mutableStateOf("") } // Inicializamos la variable que almacena el nombre de la meta
-    var description by remember { mutableStateOf("") } // Inicializamos la variable que almacena la descripción de la meta
+fun CreatorScreen(navigateToCustom: () -> Unit = {}) {
 
     Column (modifier = Modifier.fillMaxSize().background(color = Color.Black), horizontalAlignment = Alignment.CenterHorizontally){
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text="¿Título de la meta?", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Título de la meta") }
-        )
+        Text(text="Elige una de las opciones para crear tu nueva meta:", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text="¿Descripción de la meta?", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        TextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Descripción de la meta") }
+        Button(
+            onClick = { navigateToCustom() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = {
-            subirMeta(name, description)} // Llamamos a la función "subirMeta()", pasando el nombre y la descripción proporcionada por el usuario
-            ) {
-            Text("Subir meta")
+        {
+            Text(text="Personalizada")
         }
+        Spacer(modifier = Modifier.height(8.dp))
+
     }
 }

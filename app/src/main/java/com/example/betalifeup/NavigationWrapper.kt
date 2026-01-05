@@ -11,6 +11,7 @@ import com.example.betalifeup.presentation.singup.SignupScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.example.betalifeup.presentation.menu.MenuScreen
 import com.example.betalifeup.presentation.creator.CreatorScreen
+import com.example.betalifeup.presentation.creator.options.CustomScreen
 import com.example.betalifeup.presentation.recoverCredentials.RecoverCredentialsScreen
 
 @Composable
@@ -43,6 +44,11 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         }
         composable("creator"){
             CreatorScreen( // Pantalla de creación de metas. Accedemos desde el Menú de usuario
+                navigateToCustom = {navHostController.navigate("custom")}
+            )
+        }
+        composable("custom"){
+            CustomScreen(// Pantalla de creación de meta personalizada
             )
         }
         composable("recoverCredentials"){
