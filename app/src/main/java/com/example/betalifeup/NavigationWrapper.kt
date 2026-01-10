@@ -11,8 +11,7 @@ import com.example.betalifeup.presentation.singup.SignupScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.example.betalifeup.presentation.menu.MenuScreen
 import com.example.betalifeup.presentation.creator.CreatorScreen
-import com.example.betalifeup.presentation.creator.options.CustomScreen
-import com.example.betalifeup.presentation.recoverCredentials.RecoverCredentialsScreen
+import com.example.betalifeup.presentation.creator.options.custom.CustomScreen
 
 @Composable
 fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){ // Le pasamos como parámetros el Nav y Firebase

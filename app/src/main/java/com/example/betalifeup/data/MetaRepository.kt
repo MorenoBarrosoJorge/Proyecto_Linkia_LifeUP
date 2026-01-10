@@ -42,4 +42,26 @@ class MetaRepository {
             }
         })
     }
+
+
+    fun subirMeta(
+        meta: Meta, //
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit
+    ){
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+
+        val uid = user.uid
+        val database = FirebaseDatabase.getInstance().reference
+        val metaId = database.child("metas").child(uid).push().key ?: return
+
+        database.child("metas").child(uid).child(metaId).setValue(meta) // Navegamos por la base de datos para introducir correctamente los datos proporcionados por el usuario.
+            .addOnSuccessListener {
+                Log.i("Firebase", "Meta subida correctamente")
+            }
+            .addOnFailureListener {
+                Log.e("Firebase", "Error al subir meta", it)
+            }
+    }
+
 }
