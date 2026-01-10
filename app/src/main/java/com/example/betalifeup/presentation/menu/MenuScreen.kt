@@ -20,27 +20,55 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MenuScreen(navigateToCreator: () -> Unit = {}){ // Pasamos como parámetro el navegador a la pantalla de creación de metas
-    Column(Modifier.fillMaxSize().background(Black), horizontalAlignment = Alignment.CenterHorizontally) {
+fun MenuScreen(
+    navigateToCreator: () -> Unit = {},
+    viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    val metas = viewModel.metas
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(Black),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text="Feed de metas", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 30.sp)
+
+        Text(
+            text = "Feed de metas",
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 30.sp
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        metas.forEach { (_, meta) ->
+            Text(
+                text = meta.titulo ?: "",
+                color = Color.White
+            )
+
+            Text(
+                text = meta.descripcion ?: "",
+                color = Color.White
+            )
+        }
+
         Spacer(modifier = Modifier.weight(1f))
+
         Button(
-            /*
-            * Al hacer click, pueden ocurrir 2 escenarios:
-            *
-            * 1. El usuario aún puede crear metas, por lo que se accede a la pantalla de creación.
-            * 2. El usuario ya tiene el máximo número de metas activas para su perfil, por lo que se mostrará un aviso informando de esto indicando que, para crear una nueva meta, debe eliminar una de las actualmente activas.
-            * */
             onClick = { navigateToCreator() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp)
-        )
-        {
-            Text(text="Crear nueva meta", color = Color.White, fontSize = 20.sp)
+        ) {
+            Text(text = "Crear nueva meta", color = Color.White, fontSize = 20.sp)
         }
     }
 }
+
+
+
 
 //Crea una preview
