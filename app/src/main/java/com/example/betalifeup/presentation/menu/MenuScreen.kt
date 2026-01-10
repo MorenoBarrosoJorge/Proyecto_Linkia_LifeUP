@@ -18,6 +18,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Button
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Card
+
+import java.text.SimpleDateFormat
+import java.util.*
+
+
+fun formatFecha(timestamp: Long): String {
+    if (timestamp == 0L) return "Sin fecha límite"
+
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return sdf.format(Date(timestamp))
+}
 
 @Composable
 fun MenuScreen(
@@ -44,15 +56,43 @@ fun MenuScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         metas.forEach { (_, meta) ->
-            Text(
-                text = meta.titulo ?: "",
-                color = Color.White
-            )
 
-            Text(
-                text = meta.descripcion ?: "",
-                color = Color.White
-            )
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                colors = androidx.compose.material3.CardDefaults.cardColors(
+                    containerColor = Color.DarkGray
+                )
+            ){
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                ){
+                    Text(
+                        text = meta.titulo ?: "",
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = meta.descripcion ?: "",
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Fecha límite: ${formatFecha(meta.fechaLimite)}",
+                        color = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Button(
+                        onClick = {/*Comprobar misiones de la meta*/},
+                        modifier = Modifier.align(Alignment.End)
+                    ){
+                        Text(text="Comprobar misiones")
+                    }
+                }
+            }
+
         }
 
         Spacer(modifier = Modifier.weight(1f))

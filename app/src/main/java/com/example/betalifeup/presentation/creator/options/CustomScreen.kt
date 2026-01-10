@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.betalifeup.presentation.creator.subirMeta
+
 import com.example.betalifeup.presentation.model.Meta
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -34,8 +34,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 
+import android.app.DatePickerDialog
+import java.util.Calendar
+import androidx.compose.ui.platform.LocalContext
 
-fun subirMeta(nombreMeta: String, descripcionMeta: String) { // Función que recoge los datos proporcionados por el usuario, crea un archivo JSON y los sube a Firebase.
+
+fun subirMeta(nombreMeta: String, descripcionMeta: String, fechaLimite: Long) { // Función que recoge los datos proporcionados por el usuario, crea un archivo JSON y los sube a Firebase.
     val user = FirebaseAuth.getInstance().currentUser ?: return // Inicializamos la variable que recoge el nombre de usuario actualmente logeado
     val uid = user.uid // Inicializamos la variable que recoge el identificador del usuario actualmente logeado.
 
@@ -45,7 +49,8 @@ fun subirMeta(nombreMeta: String, descripcionMeta: String) { // Función que rec
 
     val meta = Meta( // TEMPORAL | Creamos un objeto "Meta", con atributos de "titulo" y "descripción"
         titulo = nombreMeta,
-        descripcion = descripcionMeta
+        descripcion = descripcionMeta,
+        fechaLimite = fechaLimite
     )
 
     database.child("metas").child(uid).child(metaId).setValue(meta) // Navegamos por la base de datos para introducir correctamente los datos proporcionados por el usuario.
@@ -95,6 +100,8 @@ fun TipsDialog(showTips: () -> Unit, tips: List<String>) {
 fun CustomScreen() {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var timeLimit by remember { mutableStateOf(0L) }
+    var timeText by remember { mutableStateOf("Sin fecha límite") }
 
     // Estado para mostrar los tips
     var showTips by remember { mutableStateOf(true) }
@@ -105,6 +112,22 @@ fun CustomScreen() {
         "Usa datos reales",
         "Revisa antes de guardar"
     )
+
+    // Para crear el selector de fecha límite
+    val calendar = Calendar.getInstance()
+    val datePickerDialog = DatePickerDialog(
+        LocalContext.current,
+        { _, year, month, dayOfMonth ->
+            calendar.set(year, month, dayOfMonth)
+            timeLimit = calendar.timeInMillis
+            timeText = "${dayOfMonth}/${month + 1}/$year"
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
+    // Para impedir seleccionar una fecha anterior a la actual
+    datePickerDialog.datePicker.minDate = System.currentTimeMillis()
 
     // Diálogo de tips
     if (showTips) {
@@ -143,7 +166,22 @@ fun CustomScreen() {
                 label = { Text("Descripción de la meta") }
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = { subirMeta(name, description) }) {
+            Text(
+                text = "Selecciona una fecha límite",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = timeText,
+                color = Color.LightGray,
+                fontSize = 14.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = { datePickerDialog.show() }) {
+                Text("Seleccionar fecha")
+            }
+            Button(onClick = { subirMeta(name, description, timeLimit) }) {
                 Text("Subir meta")
             }
         }

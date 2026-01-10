@@ -26,28 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-fun subirMeta(nombreMeta: String, descripcionMeta: String) { // Función que recoge los datos proporcionados por el usuario, crea un archivo JSON y los sube a Firebase.
-    val user = FirebaseAuth.getInstance().currentUser ?: return // Inicializamos la variable que recoge el nombre de usuario actualmente logeado
-    val uid = user.uid // Inicializamos la variable que recoge el identificador del usuario actualmente logeado.
-
-    val database = FirebaseDatabase.getInstance().reference // Inicializamos la base de datos donde almacenaremos el archivo JSON.
-
-    val metaId = database.child("metas").child(uid).push().key ?: return
-
-    val meta = Meta( // TEMPORAL | Creamos un objeto "Meta", con atributos de "titulo" y "descripción"
-        titulo = nombreMeta,
-        descripcion = descripcionMeta
-    )
-
-    database.child("metas").child(uid).child(metaId).setValue(meta) // Navegamos por la base de datos para introducir correctamente los datos proporcionados por el usuario.
-        .addOnSuccessListener {
-            Log.i("Firebase", "Meta subida correctamente")
-        }
-        .addOnFailureListener {
-            Log.e("Firebase", "Error al subir meta", it)
-        }
-}
-
 @Composable
 fun CreatorScreen(navigateToCustom: () -> Unit = {}) {
 
