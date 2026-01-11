@@ -27,14 +27,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun CreatorScreen(navigateToCustom: () -> Unit = {}) {
+fun CreatorScreen(navigateToCustom1: () -> Unit = {}) {
 
     Column (modifier = Modifier.fillMaxSize().background(color = Color.Black), horizontalAlignment = Alignment.CenterHorizontally){
         Spacer(modifier = Modifier.height(8.dp))
         Text(text="Elige una de las opciones para crear tu nueva meta:", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         Button(
-            onClick = { navigateToCustom() },
+            onClick = { navigateToCustom1() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp)

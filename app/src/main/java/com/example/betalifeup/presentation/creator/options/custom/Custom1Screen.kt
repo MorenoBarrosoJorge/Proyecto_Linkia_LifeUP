@@ -66,7 +66,7 @@ fun TipsDialog(showTips: () -> Unit, tips: List<String>) {
 
 
 @Composable
-fun CustomScreen(viewModel: CreatorViewModel = viewModel()){
+fun Custom1Screen(viewModel: CreatorViewModel = viewModel(), navigateToCustom2: (tituloMeta: String) -> Unit = {}){
     val context = LocalContext.current
     var calendar = Calendar.getInstance()
 
@@ -133,20 +133,28 @@ fun CustomScreen(viewModel: CreatorViewModel = viewModel()){
                 Text("Seleccionar fecha")
             }
 
-            Button(
-                onClick = {
-                    viewModel.subirMeta(
-                        onSuccess = {
-                            // navegación, toast, limpiar campos…
-                        },
-                        onError = {
-                            // mostrar error
-                        }
-                    )
-                }
-            ) {
-                Text("Subir meta")
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(onClick = { navigateToCustom2(/*Variable de la meta*/viewModel.titulo) }) {
+                Text("Añadir niveles")
             }
+
+
+            // Voy a dejar de momento el botón que sube la meta para utilizarlo más adelante
+//            Button(
+//                onClick = {
+//                    viewModel.subirMeta(
+//                        onSuccess = {
+//                            // navegación, toast, limpiar campos…
+//                        },
+//                        onError = {
+//                            // mostrar error
+//                        }
+//                    )
+//                }
+//            ) {
+//                Text("Subir meta")
+//            }
         }
     }
 }
