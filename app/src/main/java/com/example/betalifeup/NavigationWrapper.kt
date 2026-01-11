@@ -61,7 +61,7 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             )
         ) { backStackEntry -> // Objeto que recoge los valores enviados
             val tituloMeta = backStackEntry.arguments?.getString("tituloMeta") ?: "" // Recoge el valor de "tituloMeta"
-            Custom2Screen(tituloMeta = tituloMeta, onBack = {navHostController.popBackStack()}) // Se llama a la pantalla junto con el parámetro y la función para volver
+            Custom2Screen(tituloMeta = tituloMeta, onBack = {navHostController.popBackStack()}, onAddNivel = {/*Navegar hasta la pantalla de creación de misiones*/}) // Se llama a la pantalla junto con el parámetro y la función para volver
         }
         composable("recoverCredentials"){
             RecoverCredentialsScreen(

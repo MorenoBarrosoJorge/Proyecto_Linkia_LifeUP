@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 
 
 
@@ -24,7 +25,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 @Composable
 fun Custom2Screen(
     tituloMeta: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onAddNivel: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -32,8 +34,8 @@ fun Custom2Screen(
                 title = {
                     Text(
                         text = "META: $tituloMeta",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        maxLines = 1, // Para evitar que la barra crezca verticalmente
+                        overflow = TextOverflow.Ellipsis // Añade puntos suspensivos en caso de tener un título muy largo
                     )
                 },
                 navigationIcon = {
@@ -45,8 +47,18 @@ fun Custom2Screen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddNivel
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Añadir nivel +"
+                )
+            }
         }
-    ) { paddingValues ->
+    ) { paddingValues -> // Espacio de TopAppBar
 
         Column(
             modifier = Modifier
