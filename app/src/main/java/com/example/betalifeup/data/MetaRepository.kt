@@ -45,7 +45,7 @@ class MetaRepository {
 
 
     fun subirMeta(
-        meta: Meta, //
+        meta: Meta,
         onSuccess: () -> Unit,
         onError: (Throwable) -> Unit
     ){

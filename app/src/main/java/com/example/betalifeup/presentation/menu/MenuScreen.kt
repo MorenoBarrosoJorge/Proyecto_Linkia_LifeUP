@@ -19,9 +19,15 @@ import androidx.compose.material3.Button
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 
 import java.text.SimpleDateFormat
 import java.util.*
+
+import androidx.compose.runtime.*
+
+import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedVisibility
 
 
 fun formatFecha(timestamp: Long): String {
@@ -37,6 +43,8 @@ fun MenuScreen(
     viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val metas = viewModel.metas
+
+    var expandedMetaId by remember { mutableStateOf<String?>(null) } //
 
     Column(
         Modifier
@@ -55,13 +63,18 @@ fun MenuScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        metas.forEach { (_, meta) ->
+        metas.forEach { (metaId, meta) ->
+
+            val isExpanded = expandedMetaId == metaId //
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                colors = androidx.compose.material3.CardDefaults.cardColors(
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clickable {
+                        expandedMetaId = if (isExpanded) null else metaId
+                    },
+                colors = CardDefaults.cardColors(
                     containerColor = Color.DarkGray
                 )
             ){
@@ -84,12 +97,19 @@ fun MenuScreen(
                         color = Color.LightGray
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    Button(
-                        onClick = {/*Comprobar misiones de la meta*/},
-                        modifier = Modifier.align(Alignment.End)
-                    ){
-                        Text(text="Comprobar misiones")
+                    if (isExpanded) {
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        AnimatedVisibility(visible = isExpanded) {
+                            Button(
+                                onClick = { },
+                                modifier = Modifier.align(Alignment.End)
+                            ) {
+                                Text("Comprobar misiones")
+                            }
+                        }
                     }
+
                 }
             }
 
