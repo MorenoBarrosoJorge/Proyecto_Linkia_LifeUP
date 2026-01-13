@@ -1,16 +1,10 @@
 package com.example.betalifeup.presentation.creator.options.custom
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 
 import androidx.compose.material3.*
 import androidx.compose.ui.text.style.TextOverflow
@@ -19,15 +13,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import com.example.betalifeup.presentation.model.Nivel
+
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedTextField
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Custom2Screen(
     tituloMeta: String,
-    onBack: () -> Unit,
-    onAddNivel: () -> Unit
+    onBack: () -> Unit
 ) {
+
+    var niveles by remember { mutableStateOf(listOf<Nivel>()) }
+
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var tituloNivel by remember { mutableStateOf("") }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -50,7 +59,7 @@ fun Custom2Screen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddNivel
+                onClick = {mostrarDialogo = true}
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -60,13 +69,77 @@ fun Custom2Screen(
         }
     ) { paddingValues -> // Espacio de TopAppBar
 
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            // Aquí irá el contenido de niveles
+        if (niveles.isEmpty()){
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ){
+                Text(text="Aún no has añadido ningún nivel")
+            }
+
+        } else {
+
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+            ){
+                items(niveles){ nivel ->
+                    Text(
+                        text = nivel.titulo,
+                        modifier = Modifier.padding(16.dp))
+                }
+            }
         }
+    }
+
+    if (mostrarDialogo){
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogo = false
+                tituloNivel = ""
+            },
+            title = {
+                Text("Nuevo nivel")
+            },
+            text = {
+                OutlinedTextField(
+                    value = tituloNivel,
+                    onValueChange = {tituloNivel = it},
+                    label = {Text("Título de nivel")},
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (tituloNivel.isNotBlank()){
+                            val nuevoNivel = Nivel(
+                                id = niveles.size+1,
+                                titulo = tituloNivel
+                            )
+                            niveles = niveles + nuevoNivel
+                            mostrarDialogo = false
+                        }
+                    }
+                ) {
+                    Text("Añadir")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        mostrarDialogo = false
+                        tituloNivel = ""
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
