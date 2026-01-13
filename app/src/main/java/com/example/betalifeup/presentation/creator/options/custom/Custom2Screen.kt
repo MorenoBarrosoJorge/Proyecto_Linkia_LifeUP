@@ -36,6 +36,8 @@ fun Custom2Screen(
 
     var mostrarDialogo by remember { mutableStateOf(false) }
     var tituloNivel by remember { mutableStateOf("") }
+    var numeroNivel = niveles.size+1
+    var titulo = "Nivel $numeroNivel"
 
     Scaffold(
         topBar = {
@@ -88,9 +90,7 @@ fun Custom2Screen(
                     .fillMaxSize()
             ){
                 items(niveles){ nivel ->
-                    Text(
-                        text = nivel.titulo,
-                        modifier = Modifier.padding(16.dp))
+                    NivelItem(nivel = nivel)
                 }
             }
         }
@@ -102,28 +102,18 @@ fun Custom2Screen(
                 mostrarDialogo = false
                 tituloNivel = ""
             },
-            title = {
-                Text("Nuevo nivel")
-            },
-            text = {
-                OutlinedTextField(
-                    value = tituloNivel,
-                    onValueChange = {tituloNivel = it},
-                    label = {Text("Título de nivel")},
-                    singleLine = true
-                )
-            },
+            title = { Text("Nuevo nivel") },
+            text = { Text(text="¿Quieres añadir un nuevo nivel?") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (tituloNivel.isNotBlank()){
-                            val nuevoNivel = Nivel(
-                                id = niveles.size+1,
-                                titulo = tituloNivel
-                            )
-                            niveles = niveles + nuevoNivel
-                            mostrarDialogo = false
-                        }
+                        val numeroNivel = niveles.size+1
+                        val nuevoNivel = Nivel(
+                            id = numeroNivel,
+                            titulo = "Nivel $numeroNivel"
+                        )
+                        niveles = niveles + nuevoNivel
+                        mostrarDialogo = false
                     }
                 ) {
                     Text("Añadir")
@@ -131,10 +121,7 @@ fun Custom2Screen(
             },
             dismissButton = {
                 TextButton(
-                    onClick = {
-                        mostrarDialogo = false
-                        tituloNivel = ""
-                    }
+                    onClick = { mostrarDialogo = false }
                 ) {
                     Text("Cancelar")
                 }
@@ -143,6 +130,20 @@ fun Custom2Screen(
     }
 }
 
+@Composable
+fun NivelItem(nivel: Nivel) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = nivel.titulo,
+            modifier = Modifier.padding(16.dp),
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
 
 
 //    Column(
