@@ -13,6 +13,7 @@ import com.example.betalifeup.presentation.menu.MenuScreen
 import com.example.betalifeup.presentation.creator.CreatorScreen
 import com.example.betalifeup.presentation.creator.options.custom.Custom1Screen
 import com.example.betalifeup.presentation.creator.options.custom.Custom2Screen
+import com.example.betalifeup.presentation.creator.options.custom.Custom3Screen
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 
@@ -61,7 +62,10 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             )
         ) { backStackEntry -> // Objeto que recoge los valores enviados
             val tituloMeta = backStackEntry.arguments?.getString("tituloMeta") ?: "" // Recoge el valor de "tituloMeta"
-            Custom2Screen(tituloMeta = tituloMeta, onBack = {navHostController.popBackStack()}/*, onAddNivel = {/*Navegar hasta la pantalla de creación de misiones*/}*/) // Se llama a la pantalla junto con el parámetro y la función para volver
+            Custom2Screen(tituloMeta = tituloMeta, onBack = {navHostController.popBackStack()}, onAddMisiones = { navHostController.navigate("custom3") })
+        }
+        composable("custom3"){
+            Custom3Screen(/* Pantalla de creación de misiones / Título y descripción de la misión*/)
         }
         composable("recoverCredentials"){
             RecoverCredentialsScreen(

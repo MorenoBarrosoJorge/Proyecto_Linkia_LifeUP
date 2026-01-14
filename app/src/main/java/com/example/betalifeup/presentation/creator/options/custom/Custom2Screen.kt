@@ -45,7 +45,8 @@ import androidx.compose.animation.shrinkVertically
 @Composable
 fun Custom2Screen(
     tituloMeta: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onAddMisiones: () -> Unit = {}
 ) {
 
     var niveles by remember { mutableStateOf(listOf<Nivel>()) }
@@ -110,7 +111,7 @@ fun Custom2Screen(
                         nivel = nivel,
                         expanded = expandedNivelId == nivel.id,
                         onClick = { expandedNivelId = if (expandedNivelId == nivel.id) null else nivel.id },
-                        onMisionesClick = { println("Comprobar misiones") }
+                        onAddMisionesClick = { onAddMisiones() }
                     )
                 }
             }
@@ -130,7 +131,7 @@ fun Custom2Screen(
                         nivel = nivel,
                         expanded = expandedNivelId == nivel.id,
                         onClick = { expandedNivelId = if (expandedNivelId == nivel.id) null else nivel.id },
-                        onMisionesClick = { println("Comprobar misiones") }
+                        onAddMisionesClick = { onAddMisiones() }
                     )
                 }
             }
@@ -174,8 +175,9 @@ fun Custom2Screen(
 fun NivelItem(
     nivel: Nivel,
     expanded: Boolean,
-    onClick: () -> Unit,
-    onMisionesClick: () -> Unit = {}) {
+    onClick: () -> Unit = {},
+    onAddMisionesClick: () -> Unit = {}
+) {
 
     Card(
         modifier = Modifier
@@ -201,7 +203,7 @@ fun NivelItem(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
-                        onClick = onMisionesClick,
+                        onClick = onAddMisionesClick,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Añadir / Modificar misiones")
