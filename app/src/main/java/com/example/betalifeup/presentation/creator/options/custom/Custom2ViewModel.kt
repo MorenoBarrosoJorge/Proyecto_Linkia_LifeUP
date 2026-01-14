@@ -5,3 +5,5 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.betalifeup.presentation.model.Nivel
 import com.example.betalifeup.presentation.model.Mision
+
+class Custom2ViewModel: ViewModel(){}
