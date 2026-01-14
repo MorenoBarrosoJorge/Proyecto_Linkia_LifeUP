@@ -46,7 +46,7 @@ fun MenuScreen(
 ) {
     val metas = viewModel.metas
 
-    var expandedMetaId by remember { mutableStateOf<String?>(null) } //
+    var expandedMetaId by remember { mutableStateOf<String?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
 
     Column(
         Modifier

@@ -1,5 +1,6 @@
 package com.example.betalifeup.presentation.creator.options.custom
 
+import android.widget.Space
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +24,21 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
 
+import androidx.compose.runtime.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.unit.dp
+import android.R.attr.onClick
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,9 +51,10 @@ fun Custom2Screen(
     var niveles by remember { mutableStateOf(listOf<Nivel>()) }
 
     var mostrarDialogo by remember { mutableStateOf(false) }
-    var tituloNivel by remember { mutableStateOf("") }
     var numeroNivel = niveles.size+1
     var titulo = "Nivel $numeroNivel"
+
+    var expandedNivelId by remember { mutableStateOf<Int?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
 
     Scaffold(
         topBar = {
@@ -89,8 +106,16 @@ fun Custom2Screen(
                     .padding(paddingValues)
                     .fillMaxSize()
             ){
-                items(niveles){ nivel ->
-                    NivelItem(nivel = nivel)
+                items(
+                    niveles,
+                    key = {it.id}
+                ) { nivel ->
+                    NivelItem(
+                        nivel = nivel,
+                        expanded = expandedNivelId == nivel.id,
+                        onClick = { expandedNivelId = if (expandedNivelId == nivel.id) null else nivel.id },
+                        onMisionesClick = { println("Comprobar misiones") }
+                    )
                 }
             }
         }
@@ -100,7 +125,6 @@ fun Custom2Screen(
         AlertDialog(
             onDismissRequest = {
                 mostrarDialogo = false
-                tituloNivel = ""
             },
             title = { Text("Nuevo nivel") },
             text = { Text(text="¿Quieres añadir un nuevo nivel?") },
@@ -131,17 +155,46 @@ fun Custom2Screen(
 }
 
 @Composable
-fun NivelItem(nivel: Nivel) {
+fun NivelItem(
+    nivel: Nivel,
+    expanded: Boolean,
+    onClick: () -> Unit,
+    onMisionesClick: () -> Unit = {}) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable{ onClick() }
+            .animateContentSize()
     ) {
-        Text(
-            text = nivel.titulo,
-            modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.titleMedium
-        )
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = nivel.titulo,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Column {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        onClick = onMisionesClick,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Añadir / Modificar misiones")
+                    }
+                }
+            }
+
+        }
+
     }
 }
 
