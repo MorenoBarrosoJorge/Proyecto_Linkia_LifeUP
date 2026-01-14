@@ -62,10 +62,16 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             )
         ) { backStackEntry -> // Objeto que recoge los valores enviados
             val tituloMeta = backStackEntry.arguments?.getString("tituloMeta") ?: "" // Recoge el valor de "tituloMeta"
-            Custom2Screen(tituloMeta = tituloMeta, onBack = {navHostController.popBackStack()}, onAddMisiones = { navHostController.navigate("custom3") })
+            Custom2Screen(navController = navHostController, tituloMeta = tituloMeta, onBack = {navHostController.popBackStack()})
         }
-        composable("custom3"){
-            Custom3Screen(/* Pantalla de creación de misiones / Título y descripción de la misión*/)
+        composable(
+            route = "custom3/{nivelId}",
+            arguments = listOf( // Para poder pasar valores entre pantallas (nombre del valor){tipo del valor}
+                navArgument("nivelId") { type = NavType.IntType }
+            )
+        ){ backStackEntry ->
+            val nivelId = backStackEntry.arguments?.getInt("nivelId") ?: 0
+            Custom3Screen(nivelId = nivelId)
         }
         composable("recoverCredentials"){
             RecoverCredentialsScreen(

@@ -38,22 +38,20 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-
+import androidx.navigation.NavHostController
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Custom2Screen(
+    navController: NavHostController,
     tituloMeta: String,
-    onBack: () -> Unit,
-    onAddMisiones: () -> Unit = {}
+    onBack: () -> Unit
 ) {
 
     var niveles by remember { mutableStateOf(listOf<Nivel>()) }
 
     var mostrarDialogo by remember { mutableStateOf(false) }
-    var numeroNivel = niveles.size+1
-    var titulo = "Nivel $numeroNivel"
 
     var expandedNivelId by remember { mutableStateOf<Int?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
 
@@ -111,7 +109,7 @@ fun Custom2Screen(
                         nivel = nivel,
                         expanded = expandedNivelId == nivel.id,
                         onClick = { expandedNivelId = if (expandedNivelId == nivel.id) null else nivel.id },
-                        onAddMisionesClick = { onAddMisiones() }
+                        onAddMisionesClick = { navController.navigate("custom3/${nivel.id}") }
                     )
                 }
             }
@@ -131,7 +129,7 @@ fun Custom2Screen(
                         nivel = nivel,
                         expanded = expandedNivelId == nivel.id,
                         onClick = { expandedNivelId = if (expandedNivelId == nivel.id) null else nivel.id },
-                        onAddMisionesClick = { onAddMisiones() }
+                        onAddMisionesClick = { navController.navigate("custom3/${nivel.id}") }
                     )
                 }
             }
@@ -203,6 +201,7 @@ fun NivelItem(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
+                        // State hoisting + event callbacks
                         onClick = onAddMisionesClick,
                         modifier = Modifier.fillMaxWidth()
                     ) {
