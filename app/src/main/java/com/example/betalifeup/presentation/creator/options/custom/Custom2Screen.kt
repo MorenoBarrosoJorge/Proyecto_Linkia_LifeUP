@@ -214,18 +214,3 @@ fun NivelItem(
 
     }
 }
-
-
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(16.dp)
-//    ) {
-//        Text(
-//            text="META: $tituloMeta",
-//            fontSize = 22.sp,
-//            fontWeight = FontWeight.Bold
-//            )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//    }
