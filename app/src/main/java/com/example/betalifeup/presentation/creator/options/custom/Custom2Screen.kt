@@ -87,16 +87,32 @@ fun Custom2Screen(
             }
         }
     ) { paddingValues -> // Espacio de TopAppBar
-
+        // Voy a crear un nivel de manera automática al entrar en esta pantalla
         if (niveles.isEmpty()){
 
-            Box(
+            val numeroNivel = niveles.size+1
+            val nuevoNivel = Nivel(
+                id = numeroNivel,
+                titulo = "Nivel $numeroNivel"
+            )
+            niveles = niveles + nuevoNivel
+
+            LazyColumn(
                 modifier = Modifier
+                    .padding(paddingValues)
                     .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
             ){
-                Text(text="Aún no has añadido ningún nivel")
+                items(
+                    niveles,
+                    key = {it.id}
+                ) { nivel ->
+                    NivelItem(
+                        nivel = nivel,
+                        expanded = expandedNivelId == nivel.id,
+                        onClick = { expandedNivelId = if (expandedNivelId == nivel.id) null else nivel.id },
+                        onMisionesClick = { println("Comprobar misiones") }
+                    )
+                }
             }
 
         } else {
