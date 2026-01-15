@@ -37,39 +37,81 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import com.example.betalifeup.presentation.model.Mision
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.betalifeup.presentation.model.Nivel
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Custom3Screen(nivelId: Int, viewModel: Custom2ViewModel = viewModel()){
+fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel = viewModel()) {
 
     val misionesPorNivel by viewModel.misionesNivel.collectAsState()
     val misiones = misionesPorNivel[nivelId].orEmpty()
     var expandedMisionId by remember { mutableStateOf<Int?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var misionEnEdicion by remember { mutableStateOf<Mision?>(null) }
+    var tituloEditado by remember { mutableStateOf("") }
+    var descripcionEditada by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Text(
-            text="Misiones de Nivel $nivelId",
-            color = Color.White,
-            fontSize = 40.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        if (misiones.isEmpty()){
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Misiones de Nivel $nivelId",
+                        maxLines = 1, // Para evitar que la barra crezca verticalmente
+                        overflow = TextOverflow.Ellipsis // Añade puntos suspensivos en caso de tener un título muy largo
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Volver"
+                        )
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { mostrarDialogo = true }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Añadir misión"
+                )
+            }
+        }
+    ) { paddingValues ->
+
+        if (misiones.isEmpty()) {
+
             Text(
-                text="Aún no se ha creado ninguna misión",
+                text = "Aún no se ha creado ninguna misión",
                 color = Color.LightGray,
                 fontSize = 16.sp
             )
+
         } else {
-            LazyColumn {
+
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+            ) {
                 items(
                     items = misiones,
                     key = { it.id }
@@ -77,30 +119,96 @@ fun Custom3Screen(nivelId: Int, viewModel: Custom2ViewModel = viewModel()){
                     MisionItem(
                         mision = mision,
                         expanded = expandedMisionId == mision.id,
-                        onClick = {expandedMisionId = if (expandedMisionId == mision.id) null else mision.id},
-                        onModificarMisionClick = { println("Misión modificada") },
+                        onClick = {
+                            expandedMisionId =
+                                if (expandedMisionId == mision.id) null else mision.id
+                        },
+                        onModificarMisionClick = {
+                            misionEnEdicion = mision
+                            tituloEditado = mision.titulo
+                            descripcionEditada = mision.descripcion },
                         onEliminarMisionClick = { println("Misión eliminada") }
                     )
                 }
             }
         }
-        FloatingActionButton(
-            onClick = {
-                viewModel.addMision(
-                    nivelId = nivelId,
-                    titulo = "Misión ${misiones.size+1} de prueba de nivel $nivelId",
-                    descripcion = "Testeando creación de misiones"
-                )
-            }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Añadir misión"
-            )
-        }
     }
-}
+    if (mostrarDialogo) {
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogo = false
+            },
+            title = { Text("Nueva misión") },
+            text = { Text(text = "¿Quieres añadir una misión nueva?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.addMision(
+                            nivelId = nivelId,
+                            titulo = "Misión ${misiones.size+1}",
+                            descripcion = "Testeando creación de misiones"
+                        )
+                        mostrarDialogo = false
+                    }
+                ) {
+                    Text("Añadir")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { mostrarDialogo = false }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+    if (misionEnEdicion != null) {
+        AlertDialog(
+            onDismissRequest = { misionEnEdicion = null },
+            title = { Text("Modificar misión") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = tituloEditado,
+                        onValueChange = { tituloEditado = it },
+                        label = { Text("Título") },
+                        singleLine = true
+                    )
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = descripcionEditada,
+                        onValueChange = { descripcionEditada = it },
+                        label = { Text("Descripción") }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.updateMision(
+                            nivelId = nivelId,
+                            misionId = misionEnEdicion!!.id,
+                            nuevoTitulo = tituloEditado,
+                            nuevaDescripcion = descripcionEditada
+                        )
+                        misionEnEdicion = null
+                    }
+                ) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { misionEnEdicion = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+}
 
 @Composable
 fun MisionItem(
@@ -109,11 +217,11 @@ fun MisionItem(
     onClick: () -> Unit = {},
     onModificarMisionClick: () -> Unit = {},
     onEliminarMisionClick: () -> Unit = {}
-){
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp)
             .clickable { onClick() }
             .animateContentSize(),
         colors = CardDefaults.cardColors(containerColor = Color.LightGray)
@@ -121,7 +229,7 @@ fun MisionItem(
         Column(
             modifier = Modifier
                 .padding(16.dp)
-        ){
+        ) {
             Text(
                 text = mision.titulo,
                 color = Color.DarkGray,

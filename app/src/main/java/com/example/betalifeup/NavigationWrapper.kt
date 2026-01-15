@@ -71,7 +71,7 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             )
         ){ backStackEntry ->
             val nivelId = backStackEntry.arguments?.getInt("nivelId") ?: 0
-            Custom3Screen(nivelId = nivelId)
+            Custom3Screen(nivelId = nivelId, onBack = {navHostController.popBackStack()})
         }
         composable("recoverCredentials"){
             RecoverCredentialsScreen(

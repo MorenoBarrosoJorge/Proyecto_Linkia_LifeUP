@@ -1,6 +1,6 @@
 package com.example.betalifeup.presentation.model
 
-class Nivel (
+data class Nivel (
     val id: Int,
     val titulo: String
 )

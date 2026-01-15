@@ -45,4 +45,27 @@ class Custom2ViewModel: ViewModel(){
         _misionesNivel.value =
             _misionesNivel.value + (nivelId to (listaActual + nuevaMision)) // Se añade la nueva misión a la lista de misiones existente en el nivel correspondiente
     }
+
+    fun updateMision(
+        nivelId: Int,
+        misionId: Int,
+        nuevoTitulo: String,
+        nuevaDescripcion: String
+    ) {
+        val mapaActual = _misionesNivel.value
+        val listaActual = mapaActual[nivelId].orEmpty()
+
+        val listaActualizada = listaActual.map { mision ->
+            if (mision.id == misionId) {
+                mision.copy(
+                    titulo = nuevoTitulo,
+                    descripcion = nuevaDescripcion
+                )
+            } else {
+                mision
+            }
+        }
+
+        _misionesNivel.value = mapaActual + (nivelId to listaActualizada)
+    }
 }
