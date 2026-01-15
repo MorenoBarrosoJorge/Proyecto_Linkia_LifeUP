@@ -60,9 +60,11 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
     val misiones = misionesPorNivel[nivelId].orEmpty()
     var expandedMisionId by remember { mutableStateOf<Int?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
     var mostrarDialogo by remember { mutableStateOf(false) }
-    var misionEnEdicion by remember { mutableStateOf<Mision?>(null) }
+    var misionEdicion by remember { mutableStateOf<Mision?>(null) }
     var tituloEditado by remember { mutableStateOf("") }
     var descripcionEditada by remember { mutableStateOf("") }
+    var misionEliminar by remember { mutableStateOf<Mision?>(null) }
+
 
 
     Scaffold(
@@ -99,11 +101,14 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
 
         if (misiones.isEmpty()) {
 
-            Text(
-                text = "Aún no se ha creado ninguna misión",
-                color = Color.LightGray,
-                fontSize = 16.sp
-            )
+            Column{
+                Spacer(modifier = Modifier.padding(paddingValues))
+                Text(
+                    text = "Aún no se ha creado ninguna misión",
+                    color = Color.DarkGray,
+                    fontSize = 16.sp
+                )
+            }
 
         } else {
 
@@ -124,10 +129,10 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
                                 if (expandedMisionId == mision.id) null else mision.id
                         },
                         onModificarMisionClick = {
-                            misionEnEdicion = mision
+                            misionEdicion = mision
                             tituloEditado = mision.titulo
                             descripcionEditada = mision.descripcion },
-                        onEliminarMisionClick = { println("Misión eliminada") }
+                        onEliminarMisionClick = { misionEliminar = mision }
                     )
                 }
             }
@@ -163,9 +168,9 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
             }
         )
     }
-    if (misionEnEdicion != null) {
+    if (misionEdicion != null) {
         AlertDialog(
-            onDismissRequest = { misionEnEdicion = null },
+            onDismissRequest = { misionEdicion = null },
             title = { Text("Modificar misión") },
             text = {
                 Column {
@@ -190,18 +195,51 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
                     onClick = {
                         viewModel.updateMision(
                             nivelId = nivelId,
-                            misionId = misionEnEdicion!!.id,
+                            misionId = misionEdicion!!.id,
                             nuevoTitulo = tituloEditado,
                             nuevaDescripcion = descripcionEditada
                         )
-                        misionEnEdicion = null
+                        misionEdicion = null
                     }
                 ) {
                     Text("Guardar")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { misionEnEdicion = null }) {
+                TextButton(onClick = { misionEdicion = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+    if (misionEliminar != null) {
+        AlertDialog(
+            onDismissRequest = {
+                misionEliminar = null
+            },
+            title = {
+                Text("Eliminar misión")
+            },
+            text = {
+                Text("¿Estás seguro de que quieres eliminar esta misión? Esta acción no se puede deshacer.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteMision(
+                            nivelId = nivelId,
+                            misionId = misionEliminar!!.id
+                        )
+                        misionEliminar = null
+                    }
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { misionEliminar = null }
+                ) {
                     Text("Cancelar")
                 }
             }

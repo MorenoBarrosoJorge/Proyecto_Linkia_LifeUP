@@ -68,4 +68,16 @@ class Custom2ViewModel: ViewModel(){
 
         _misionesNivel.value = mapaActual + (nivelId to listaActualizada)
     }
+
+    fun deleteMision(
+        nivelId: Int,
+        misionId: Int
+    ) {
+        val listaActual = _misionesNivel.value[nivelId].orEmpty()
+        val listaActualizada = listaActual.filterNot { it.id == misionId }
+
+        _misionesNivel.value =
+            _misionesNivel.value + (nivelId to listaActualizada)
+    }
+
 }
