@@ -1,7 +1,9 @@
 package com.example.betalifeup.presentation.model
 
 data class Meta(
-    val titulo:String? = null,
-    val descripcion:String? = null,
-    val fechaLimite:Long = 0L
+    val id: String = "",
+    val titulo:String = "",
+    val descripcion:String = "",
+    val fechaLimite:Long = 0L,
+    val fechaCreacion:Long = 0L
 )

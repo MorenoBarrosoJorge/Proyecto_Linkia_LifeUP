@@ -8,60 +8,55 @@ import com.google.firebase.database.*
 class MetaRepository {
 
     private val auth = FirebaseAuth.getInstance()
-    private val database = FirebaseDatabase.getInstance()
-
-    fun escucharMetas(
-        onResult: (List<Pair<String, Meta>>) -> Unit,
-        onError: (Exception) -> Unit = {}
-    ) {
-        val user = auth.currentUser ?: return
-        val uid = user.uid
-
-        val ref = database
-            .getReference("metas")
-            .child(uid)
-
-        ref.addValueEventListener(object : ValueEventListener { // Avisa de cada cambio en /metas/iud (como modificación de una meta, borrado de meta...)
-            override fun onDataChange(snapshot: DataSnapshot) { // Se ejecuta al iniciarse por primera vez o al haber algún cambio en /metas/uid
-                                                                // snapshot es una "foto" del estado actual de /metas/uid
-
-                val metas = mutableListOf<Pair<String, Meta>>() // Ya que recoge de Firebase la estructura <ID Meta, Meta>, se utilizar "Pair" para poder recoger y guardar ambos valores juntos, es decir, el ID de la meta y los datos de la meta.
-
-                for (child in snapshot.children) { // Por cada meta dentro de la lista de metas asignadas al usuario actual...
-                    val meta = child.getValue(Meta::class.java) // Recoge cada uno de los campos de la meta
-                    if (meta != null) { // En caso de encontrar campos en la meta...
-                        metas.add(child.key!! to meta) // Recogemos su ID, almacenando dicho ID junto con los campos de su meta
-                    }
-                }
-                onResult(metas) // Devolvemos la lista de metas perteneciente al usuario activo
-            }
-
-            override fun onCancelled(error: DatabaseError) { // En caso de pérdida de conexión o fallo en los permisos...
-                Log.e("Firebase", "Error cargando metas", error.toException())
-                onError(error.toException()) // Devolvemos la excepción que informa de ello
-            }
-        })
-    }
-
+    private val database = FirebaseDatabase.getInstance().reference
 
     fun subirMeta(
-        meta: Meta,
-        onSuccess: () -> Unit,
-        onError: (Throwable) -> Unit
+        titulo:String,
+        descripcion: String,
+        fechaLimite: Long
     ){
-        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = auth.currentUser?.uid?: return
 
-        val uid = user.uid
-        val database = FirebaseDatabase.getInstance().reference
-        val metaId = database.child("metas").child(uid).push().key ?: return
+        val metaRef = database
+            .child("users")
+            .child(uid)
+            .child("metas")
+            .push()
 
-        database.child("metas").child(uid).child(metaId).setValue(meta) // Navegamos por la base de datos para introducir correctamente los datos proporcionados por el usuario.
-            .addOnSuccessListener {
-                Log.i("Firebase", "Meta subida correctamente")
-            }
-            .addOnFailureListener {
-                Log.e("Firebase", "Error al subir meta", it)
-            }
+        val metaData = mapOf(
+            "titulo" to titulo,
+            "descripcion" to descripcion,
+            "fechaLimite" to fechaLimite,
+            "createdAt" to System.currentTimeMillis(),
+            "niveles" to emptyMap<String, Any>()
+        )
+
+        metaRef.setValue(metaData)
     }
 
+    fun escucharMetas(
+        onResult: (List<Meta>) -> Unit, // Recoge las metas del usaurio actual
+        onError: (Exception) -> Unit = {} // Devuelve el error originado por recoger las metas
+    ){
+
+        val uid = auth.currentUser?.uid?: return // Guarda el id del usuario para poder recoger sus metas disponibles. En caso de no devolver ningun usuario, devuelve null para evitar crasheos
+
+        database.child("users")
+            .child(uid)
+            .child("metas")
+            .addValueEventListener(object: ValueEventListener{ // Mistener en tiempo real
+                override fun onDataChange(snapshot: DataSnapshot){ /*Se llama a esta función al entrar por primera vez en la pantalla "Menú" y cada vez que hay algún cambio en alguna de las metas activas
+                                                                     El parámetro snapshot recoge el estado actual de las metas activas del usuario*/
+                    val metas = snapshot.children.mapNotNull { metaSnap -> // Se recoge cada una de las metas existentes (snapshot.children) y se convierten en objetos tipo "Meta" (.mapNotNull evita nulls)
+                        val meta = metaSnap.getValue(Meta::class.java) // Por cada meta, se recogen sus valores (titulo, descripción...) y se convierten de campos JSON a atributos de Meta
+                        meta?.copy(id = metaSnap.key ?: "") // Añade el id de la meta y lo integra con el resto de atributos
+                    }
+                    onResult(metas) // Al obtener resultado, devuelve la lista de metas recogidas
+                }
+                override fun onCancelled(error: DatabaseError){
+                    Log.e("Firebase", "Error cargando metas", error.toException())
+                    onError(error.toException()) // Devolvemos la excepción que informa de ello
+                }
+            })
+    }
 }
