@@ -9,6 +9,7 @@ import com.example.betalifeup.presentation.model.Mision
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class CustomMetaViewModel(
     private val repository: MetaRepository = MetaRepository()
@@ -35,7 +36,7 @@ class CustomMetaViewModel(
     fun addNivel() {
         val nivelesActuales = _metaTemporal.value.niveles
         val nuevoNivel = Nivel(
-            id = nivelesActuales.size + 1,
+            id = UUID.randomUUID().toString(),
             titulo = "Nivel ${nivelesActuales.size + 1}",
             misiones = emptyList()
         )
@@ -44,11 +45,11 @@ class CustomMetaViewModel(
         )
     }
 
-    fun addMision(nivelId: Int, titulo: String, descripcion: String) {
+    fun addMision(nivelId: String, titulo: String, descripcion: String) {
         val nivelesActuales = _metaTemporal.value.niveles.map { nivel -> // .map Recoge cada nivel de la lista de niveles para crear una nueva lista temporal sobre la que trabajar después
             if (nivel.id == nivelId) {
                 val nuevaMision = Mision(
-                    id = nivel.misiones.size + 1,
+                    id = UUID.randomUUID().toString(),
                     titulo = titulo,
                     descripcion = descripcion
                 )
@@ -58,7 +59,7 @@ class CustomMetaViewModel(
         _metaTemporal.value = _metaTemporal.value.copy(niveles = nivelesActuales)
     }
 
-    fun updateMision(nivelId: Int, misionId: Int, nuevoTitulo: String, nuevaDescripcion: String) {
+    fun updateMision(nivelId: String, misionId: String, nuevoTitulo: String, nuevaDescripcion: String) {
         val nivelesActuales = _metaTemporal.value.niveles.map { nivel ->
             if (nivel.id == nivelId) {
                 val misionesActuales = nivel.misiones.map { mision ->
@@ -71,7 +72,7 @@ class CustomMetaViewModel(
         _metaTemporal.value = _metaTemporal.value.copy(niveles = nivelesActuales)
     }
 
-    fun deleteMision(nivelId: Int, misionId: Int) {
+    fun deleteMision(nivelId: String, misionId: String) {
         val nivelesActuales = _metaTemporal.value.niveles.map { nivel ->
             if (nivel.id == nivelId) {
                 val misionesActuales = nivel.misiones.filter { it.id != misionId }

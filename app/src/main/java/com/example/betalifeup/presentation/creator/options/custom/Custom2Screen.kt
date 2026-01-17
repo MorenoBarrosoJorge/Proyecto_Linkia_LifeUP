@@ -1,66 +1,50 @@
 package com.example.betalifeup.presentation.creator.options.custom
 
-import android.widget.Space
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
 import androidx.compose.material3.*
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import com.example.betalifeup.presentation.model.Nivel
-
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.OutlinedTextField
-
-import androidx.compose.runtime.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.unit.dp
-import android.R.attr.onClick
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.navigation.NavHostController
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Custom2Screen(
-    navController: NavHostController,
-    tituloMeta: String,
-    onBack: () -> Unit
+    viewModel: CustomMetaViewModel,
+    onBack: () -> Unit,
+    onNavigateToCustom3: (nivelId: String) -> Unit
 ) {
 
-    var niveles by remember { mutableStateOf(listOf<Nivel>()) }
-
+    val meta by viewModel.metaTemporal.collectAsState()
+    val niveles = meta.niveles
     var mostrarDialogo by remember { mutableStateOf(false) }
-
-    var expandedNivelId by remember { mutableStateOf<Int?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
+    var expandedNivelId by remember { mutableStateOf<String?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "META: $tituloMeta",
+                        text = "META: ${meta.titulo}",
                         maxLines = 1, // Para evitar que la barra crezca verticalmente
                         overflow = TextOverflow.Ellipsis // Añade puntos suspensivos en caso de tener un título muy largo
                     )
@@ -89,13 +73,7 @@ fun Custom2Screen(
         // Voy a crear un nivel de manera automática al entrar en esta pantalla
         if (niveles.isEmpty()){
 
-            val numeroNivel = niveles.size+1
-            val nuevoNivel = Nivel(
-                id = numeroNivel,
-                titulo = "Nivel $numeroNivel"
-            )
-            niveles = niveles + nuevoNivel
-
+            viewModel.addNivel()
             LazyColumn(
                 modifier = Modifier
                     .padding(paddingValues)
@@ -109,7 +87,7 @@ fun Custom2Screen(
                         nivel = nivel,
                         expanded = expandedNivelId == nivel.id,
                         onClick = { expandedNivelId = if (expandedNivelId == nivel.id) null else nivel.id },
-                        onAddMisionesClick = { navController.navigate("custom3/${nivel.id}") }
+                        onAddMisionesClick = { onNavigateToCustom3(nivel.id) }
                     )
                 }
             }
@@ -129,7 +107,7 @@ fun Custom2Screen(
                         nivel = nivel,
                         expanded = expandedNivelId == nivel.id,
                         onClick = { expandedNivelId = if (expandedNivelId == nivel.id) null else nivel.id },
-                        onAddMisionesClick = { navController.navigate("custom3/${nivel.id}") }
+                        onAddMisionesClick = { onNavigateToCustom3(nivel.id) }
                     )
                 }
             }
@@ -138,20 +116,13 @@ fun Custom2Screen(
 
     if (mostrarDialogo){
         AlertDialog(
-            onDismissRequest = {
-                mostrarDialogo = false
-            },
+            onDismissRequest = { mostrarDialogo = false },
             title = { Text("Nuevo nivel") },
             text = { Text(text="¿Quieres añadir un nuevo nivel?") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val numeroNivel = niveles.size+1
-                        val nuevoNivel = Nivel(
-                            id = numeroNivel,
-                            titulo = "Nivel $numeroNivel"
-                        )
-                        niveles = niveles + nuevoNivel
+                        viewModel.addNivel()
                         mostrarDialogo = false
                     }
                 ) {
@@ -174,7 +145,7 @@ fun NivelItem(
     nivel: Nivel,
     expanded: Boolean,
     onClick: () -> Unit = {},
-    onAddMisionesClick: () -> Unit = {}
+    onAddMisionesClick: (String) -> Unit = {}
 ) {
 
     Card(
@@ -202,7 +173,7 @@ fun NivelItem(
 
                     Button(
                         // State hoisting + event callbacks
-                        onClick = onAddMisionesClick,
+                        onClick = { onAddMisionesClick(nivel.id) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Añadir / Modificar misiones")
