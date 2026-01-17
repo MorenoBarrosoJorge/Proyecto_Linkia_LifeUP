@@ -49,10 +49,10 @@ class CreatorViewModel(
             fechaLimite = fechaLimite
         )
 
-        repository.subirMeta(
-            meta = meta,
-            onSuccess = onSuccess,
-            onError = onError
-        )
+//        repository.subirMeta(
+//            meta = meta,
+//            onSuccess = onSuccess,
+//            onError = onError
+//        )
     }
 }

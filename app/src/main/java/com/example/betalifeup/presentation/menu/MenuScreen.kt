@@ -1,6 +1,8 @@
 package com.example.betalifeup.presentation.menu
 
+import com.example.betalifeup.presentation.model.Meta
 import androidx.compose.foundation.background
+import androidx.compose.material3.Scaffold
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -21,15 +23,21 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-
+import androidx.compose.ui.text.style.TextOverflow
 import java.text.SimpleDateFormat
 import java.util.*
-
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.*
-
 import androidx.compose.foundation.clickable
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.text.style.TextAlign
 
 
 fun formatFecha(timestamp: Long): String {
@@ -39,112 +47,114 @@ fun formatFecha(timestamp: Long): String {
     return sdf.format(Date(timestamp))
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
     navigateToCreator: () -> Unit = {},
-    viewModel: MenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    navigateToCustom2: (metaId: String) -> Unit = {},
+    viewModel: MenuViewModel = viewModel()
 ) {
-    val metas = viewModel.metas
+    val metasList by viewModel.metas.collectAsState() // Lista de objetos tipo Meta
+    var expandedMetaId by remember { mutableStateOf<String?>(null) }
 
-    var expandedMetaId by remember { mutableStateOf<String?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
-
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(Black),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Feed de metas",
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 30.sp
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f), // ocupa el espacio disponible
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(
-                items = metas.toList(),
-                key = { it.first } // metaId
-            ) { (metaId, meta) ->
-
-                val isExpanded = expandedMetaId == metaId
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .clickable (
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        ){
-                            expandedMetaId = if (isExpanded) null else metaId
-                        },
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.DarkGray
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-
-                        Text(
-                            text = meta.titulo ?: "",
-                            color = Color.White
-                        )
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        Text(
-                            text = meta.descripcion ?: "",
-                            color = Color.White
-                        )
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        Text(
-                            text = "Fecha límite: ${formatFecha(meta.fechaLimite)}",
-                            color = Color.LightGray
-                        )
-
-                        AnimatedVisibility(visible = isExpanded) {
-                            Column {
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Button(
-                                    onClick = { /* Comprobar misiones */ },
-                                    modifier = Modifier.align(Alignment.End)
-                                ) {
-                                    Text("Comprobar misiones")
-                                }
-                            }
-                        }
-                    }
-                }
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text="LISTA DE METAS",
+                        color = Color.Black,
+                        fontSize = 24.sp) }
+            )
+        },
+        containerColor = Color.Black,
+        bottomBar = {
+            Button(
+                onClick = { navigateToCreator() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+            ) {
+                Text(text = "Nueva meta", color = Color.White, fontSize = 20.sp)
             }
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = { navigateToCreator() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp)
-        ) {
-
-            Text(text = "Crear nueva meta", color = Color.White, fontSize = 20.sp)
-
+    ){ paddingValues ->
+        if (metasList.isEmpty()){
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text="Aún no has creado ninguna misión", color = Color.White, fontSize = 20.sp)
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(
+                    items = metasList,
+                    key = { it.id } // ID de cada meta
+                ) { meta ->
+                    MetaItem(
+                        meta = meta,
+                        expanded = expandedMetaId == meta.id,
+                        onClick = {expandedMetaId = if (expandedMetaId == meta.id) null else meta.id },
+                        onComprobarMisionesClick = {/*Comprobar misiones disponibles en el nivel actual*/}
+                    )
+                }
+            }
         }
     }
 }
 
+@Composable
+fun MetaItem(
+    meta: Meta,
+    expanded: Boolean,
+    onClick: () -> Unit,
+    onComprobarMisionesClick: () -> Unit
+){
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+    ){
+        Column(modifier = Modifier.padding(16.dp)){
+            Text(
+                text = meta.titulo,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = meta.descripcion,
+                color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "Fecha límite: ${formatFecha(meta.fechaLimite)}",
+                color = Color.LightGray
+            )
 
-
-
-//Crea una preview
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Column {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = onComprobarMisionesClick,
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Misiones disponibles")
+                    }
+                }
+            }
+        }
+    }
+}

@@ -17,13 +17,15 @@ class MenuViewModel(
     val metas: StateFlow<List<Meta>> = _metas // Lista de metas inmutable
 
     init {
-        fun cargarMetas() {
-            repository.escucharMetas(
-                onResult = { listaMetas -> // Se recogen todas las metas del usuario
-                    _metas.value = listaMetas
-                },
-                onError = {/*Controlar error al escuchar metas*/ }
-            )
-        }
+        cargarMetas()
+    }
+
+    fun cargarMetas() {
+        repository.escucharMetas(
+            onResult = { listaMetas -> // Se recogen todas las metas del usuario
+                _metas.value = listaMetas
+            },
+            onError = {/*Controlar error al escuchar metas*/ }
+        )
     }
 }
