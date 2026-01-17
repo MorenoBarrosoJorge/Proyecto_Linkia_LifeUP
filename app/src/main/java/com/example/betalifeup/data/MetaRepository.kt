@@ -10,12 +10,9 @@ class MetaRepository {
     private val auth = FirebaseAuth.getInstance()
     private val database = FirebaseDatabase.getInstance().reference
 
-    fun subirMeta(
-        titulo:String,
-        descripcion: String,
-        fechaLimite: Long
-    ){
-        val uid = auth.currentUser?.uid?: return
+    fun subirMeta(userID: String, meta: Meta){
+
+        val uid = userID
 
         val metaRef = database
             .child("users")
@@ -23,15 +20,10 @@ class MetaRepository {
             .child("metas")
             .push()
 
-        val metaData = mapOf(
-            "titulo" to titulo,
-            "descripcion" to descripcion,
-            "fechaLimite" to fechaLimite,
-            "createdAt" to System.currentTimeMillis(),
-            "niveles" to emptyMap<String, Any>()
+        val metaFechaCreacion = meta.copy(
+            id = metaRef.key ?: "",
+            fechaCreacion = System.currentTimeMillis()
         )
-
-        metaRef.setValue(metaData)
     }
 
     fun escucharMetas(

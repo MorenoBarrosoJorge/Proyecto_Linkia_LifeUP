@@ -1,0 +1,92 @@
+package com.example.betalifeup.presentation.creator.options.custom
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.betalifeup.data.MetaRepository
+import com.example.betalifeup.presentation.model.Meta
+import com.example.betalifeup.presentation.model.Nivel
+import com.example.betalifeup.presentation.model.Mision
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class CustomMetaViewModel(
+    private val repository: MetaRepository = MetaRepository()
+) : ViewModel() {
+    private val _metaTemporal = MutableStateFlow( // Se guardan todos los datos referentes a la meta de manera temporal
+        Meta(id = "", titulo = "", descripcion = "", fechaLimite = 0L, niveles = emptyList())
+    )
+    val metaTemporal: StateFlow<Meta> = _metaTemporal // Recoge el estado de la meta temporal para mostrar por pantalla la persistencia de los datos añadidos y/o modificados
+
+    // FUNCIONES PARA ESTABLECER O MODIFICAR CAMPOS DE LA META, NIVEL O MISIÓN
+
+    fun setTitulo(titulo: String) {
+        _metaTemporal.value = _metaTemporal.value.copy(titulo = titulo)
+    }
+
+    fun setDescripcion(descripcion: String) {
+        _metaTemporal.value = _metaTemporal.value.copy(descripcion = descripcion)
+    }
+
+    fun setFechaLimite(fecha: Long) {
+        _metaTemporal.value = _metaTemporal.value.copy(fechaLimite = fecha)
+    }
+
+    fun addNivel() {
+        val nivelesActuales = _metaTemporal.value.niveles
+        val nuevoNivel = Nivel(
+            id = nivelesActuales.size + 1,
+            titulo = "Nivel ${nivelesActuales.size + 1}",
+            misiones = emptyList()
+        )
+        _metaTemporal.value = _metaTemporal.value.copy(
+            niveles = nivelesActuales + nuevoNivel
+        )
+    }
+
+    fun addMision(nivelId: Int, titulo: String, descripcion: String) {
+        val nivelesActuales = _metaTemporal.value.niveles.map { nivel -> // .map Recoge cada nivel de la lista de niveles para crear una nueva lista temporal sobre la que trabajar después
+            if (nivel.id == nivelId) {
+                val nuevaMision = Mision(
+                    id = nivel.misiones.size + 1,
+                    titulo = titulo,
+                    descripcion = descripcion
+                )
+                nivel.copy(misiones = nivel.misiones + nuevaMision)
+            } else nivel
+        }
+        _metaTemporal.value = _metaTemporal.value.copy(niveles = nivelesActuales)
+    }
+
+    fun updateMision(nivelId: Int, misionId: Int, nuevoTitulo: String, nuevaDescripcion: String) {
+        val nivelesActuales = _metaTemporal.value.niveles.map { nivel ->
+            if (nivel.id == nivelId) {
+                val misionesActuales = nivel.misiones.map { mision ->
+                    if (mision.id == misionId) mision.copy(titulo = nuevoTitulo, descripcion = nuevaDescripcion)
+                    else mision
+                }
+                nivel.copy(misiones = misionesActuales)
+            } else nivel
+        }
+        _metaTemporal.value = _metaTemporal.value.copy(niveles = nivelesActuales)
+    }
+
+    fun deleteMision(nivelId: Int, misionId: Int) {
+        val nivelesActuales = _metaTemporal.value.niveles.map { nivel ->
+            if (nivel.id == nivelId) {
+                val misionesActuales = nivel.misiones.filter { it.id != misionId }
+                nivel.copy(misiones = misionesActuales)
+            } else nivel
+        }
+        _metaTemporal.value = _metaTemporal.value.copy(niveles = nivelesActuales)
+    }
+
+    fun guardarMeta(userId: String) {
+        val metaParaGuardar = _metaTemporal.value.copy(
+            id = "" // Aunque esté vacío, el id lo genera Firebase al subir la meta a la base de datos
+        )
+        viewModelScope.launch {
+            repository.subirMeta(userId, metaParaGuardar)
+        }
+    }
+}
