@@ -52,4 +52,47 @@ class MetaRepository {
             })
     }
 
+    fun escucharMetaNivelActual( //Similar a escucharMetas(), solo que esta función escucha la meta indicada a través de su ID
+        metaId: String,
+        onResult: (Meta) -> Unit,
+        onError: (Throwable) -> Unit
+    ){
+        val uid = auth.currentUser?.uid ?: return
+
+        database.child("users")
+            .child(uid)
+            .child("metas")
+            .child(metaId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val meta = snapshot.getValue(Meta::class.java)
+                    if (meta != null) {
+                        onResult(meta.copy(id = snapshot.key ?: ""))
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Error escuchando meta", error.toException())
+                    onError(error.toException())
+                }
+            }
+            )
+    }
+
+    fun actualizarEstadoMision(
+        userId: String,
+        metaId: String,
+        nivelId: String,
+        misionId: String
+    ) {
+        database.child("metas")
+            .child(userId)
+            .child(metaId)
+            .child("niveles")
+            .child(nivelId)
+            .child("misiones")
+            .child(misionId)
+            .child("completada")
+            .setValue(true)
+    }
+
 }
