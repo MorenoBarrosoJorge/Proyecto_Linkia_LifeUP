@@ -35,7 +35,7 @@ fun Custom2Screen(
 ) {
 
     val meta by viewModel.metaTemporal.collectAsState()
-    val niveles = meta.niveles
+    val nivelesOrdenados = meta.niveles.sortedBy { it.orden }
     var mostrarDialogo by remember { mutableStateOf(false) }
     var expandedNivelId by remember { mutableStateOf<String?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
 
@@ -71,7 +71,7 @@ fun Custom2Screen(
         }
     ) { paddingValues -> // Espacio de TopAppBar
         // Voy a crear un nivel de manera automática al entrar en esta pantalla
-        if (niveles.isEmpty()){
+        if (nivelesOrdenados.isEmpty()){
 
             viewModel.addNivel()
             LazyColumn(
@@ -80,7 +80,7 @@ fun Custom2Screen(
                     .fillMaxSize()
             ){
                 items(
-                    niveles,
+                    nivelesOrdenados,
                     key = {it.id}
                 ) { nivel ->
                     NivelItem(
@@ -100,7 +100,7 @@ fun Custom2Screen(
                     .fillMaxSize()
             ){
                 items(
-                    niveles,
+                    nivelesOrdenados,
                     key = {it.id}
                 ) { nivel ->
                     NivelItem(

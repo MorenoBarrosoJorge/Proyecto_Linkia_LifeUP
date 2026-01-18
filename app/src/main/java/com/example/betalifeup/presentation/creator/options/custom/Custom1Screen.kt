@@ -27,9 +27,7 @@ import androidx.compose.runtime.remember
 import android.app.DatePickerDialog
 import java.util.Calendar
 import androidx.compose.ui.platform.LocalContext
-
-
-
+import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
@@ -66,7 +64,7 @@ fun TipsDialog(showTips: () -> Unit, tips: List<String>) {
 
 
 @Composable
-fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit = {}){
+fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit = {}, navigateToMenu: () -> Unit, auth: FirebaseAuth){
     val context = LocalContext.current
     val meta by viewModel.metaTemporal.collectAsState()
     var calendar = remember { Calendar.getInstance() }
@@ -136,6 +134,15 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
 
             Button(onClick = { navigateToCustom2() }) {
                 Text("Añadir niveles")
+            }
+            Button(onClick = {
+                val userId = auth.currentUser?.uid
+                if (!userId.isNullOrEmpty()) {
+                    viewModel.guardarMeta(userId)
+                    navigateToMenu()
+                }
+            }) {
+                Text("Subir Meta")
             }
         }
     }

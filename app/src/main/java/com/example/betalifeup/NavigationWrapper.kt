@@ -57,7 +57,9 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         composable("custom1"){
             Custom1Screen(// Pantalla de creación de meta personalizada / Título, descripción y fecha límite de la meta
                 viewModel = customMetaViewModel,
-                navigateToCustom2 = {navHostController.navigate("custom2")}
+                navigateToCustom2 = {navHostController.navigate("custom2")},
+                navigateToMenu = {navHostController.navigate("menu")},
+                auth = auth
             )
         }
         composable("custom2") {

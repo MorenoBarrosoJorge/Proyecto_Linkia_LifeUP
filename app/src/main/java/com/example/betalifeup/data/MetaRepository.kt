@@ -13,7 +13,6 @@ class MetaRepository {
     fun subirMeta(userID: String, meta: Meta){
 
         val uid = userID
-
         val metaRef = database
             .child("users")
             .child(uid)
@@ -24,6 +23,7 @@ class MetaRepository {
             id = metaRef.key ?: "",
             fechaCreacion = System.currentTimeMillis()
         )
+        metaRef.setValue(metaFechaCreacion)
     }
 
     fun escucharMetas(

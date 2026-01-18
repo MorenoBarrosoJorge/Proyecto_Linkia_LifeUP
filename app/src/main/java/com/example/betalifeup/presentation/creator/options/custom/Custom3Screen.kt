@@ -58,7 +58,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
 
     val meta by viewModel.metaTemporal.collectAsState()
     val nivel = meta.niveles.find { it.id == nivelId }
-    val misiones = nivel?.misiones.orEmpty()
+    val misionesOrdenadas = nivel?.misiones?.sortedBy { it.orden }.orEmpty()
     var expandedMisionId by remember { mutableStateOf<String?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
     var mostrarDialogo by remember { mutableStateOf(false) }
     var mostrarModificar by remember { mutableStateOf(false) }
@@ -100,7 +100,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
         }
     ) { paddingValues ->
 
-        if (misiones.isEmpty()) {
+        if (misionesOrdenadas.isEmpty()) {
             Column{
                 Spacer(modifier = Modifier.padding(paddingValues))
                 Text(
@@ -116,7 +116,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
                     .fillMaxSize()
             ) {
                 items(
-                    items = misiones,
+                    items = misionesOrdenadas,
                     key = { it.id }
                 ) { mision ->
                     MisionItem(
@@ -153,7 +153,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
                     onClick = {
                         viewModel.addMision(
                             nivelId = nivelId,
-                            titulo = "Misión ${misiones.size+1}",
+                            titulo = "Misión ${misionesOrdenadas.size+1}",
                             descripcion = "Testeando creación de misiones"
                         )
                         mostrarDialogo = false

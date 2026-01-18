@@ -48,7 +48,8 @@ class CustomMetaViewModel(
         val nuevoNivel = Nivel(
             id = UUID.randomUUID().toString(),
             titulo = "Nivel ${nivelesActuales.size + 1}",
-            misiones = emptyList()
+            misiones = emptyList(),
+            orden = nivelesActuales.size + 1
         )
         _metaTemporal.value = _metaTemporal.value.copy(
             niveles = nivelesActuales + nuevoNivel
@@ -61,7 +62,8 @@ class CustomMetaViewModel(
                 val nuevaMision = Mision(
                     id = UUID.randomUUID().toString(),
                     titulo = titulo,
-                    descripcion = descripcion
+                    descripcion = descripcion,
+                    orden = nivel.misiones.size + 1
                 )
                 nivel.copy(misiones = nivel.misiones + nuevaMision)
             } else nivel
