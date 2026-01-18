@@ -14,10 +14,12 @@ import com.example.betalifeup.presentation.creator.CreatorScreen
 import com.example.betalifeup.presentation.creator.options.custom.Custom1Screen
 import com.example.betalifeup.presentation.creator.options.custom.Custom2Screen
 import com.example.betalifeup.presentation.creator.options.custom.Custom3Screen
+import com.example.betalifeup.presentation.menuMeta.MenuMetaScreen
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.betalifeup.presentation.creator.options.custom.CustomMetaViewModel
+import com.example.betalifeup.presentation.menuMeta.MenuMetaViewModel
 
 @Composable
 fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){ // Le pasamos como parámetros el Nav y Firebase
@@ -46,7 +48,18 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         }
         composable("menu"){
             MenuScreen( // Pantalla de Menú de usuario. Accedemos solo con credenciales correctas
-                navigateToCreator = {navHostController.navigate("creator")}
+                navigateToCreator = { navHostController.navigate("creator") },
+                navigateToMenuMeta = { metaId -> navHostController.navigate("menuMeta/${metaId}") }
+            )
+        }
+        composable(
+            route = "menuMeta/{metaId}",
+            arguments = listOf(navArgument("metaId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val metaId = backStackEntry.arguments?.getString("metaId") ?: ""
+            MenuMetaScreen(
+                metaId = metaId,
+                onBack = { navHostController.popBackStack() }
             )
         }
         composable("creator"){

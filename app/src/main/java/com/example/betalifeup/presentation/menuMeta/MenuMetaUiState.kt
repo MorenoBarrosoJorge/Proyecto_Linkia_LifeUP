@@ -1,4 +1,4 @@
-package com.example.betalifeup.presentation.metaMenu
+package com.example.betalifeup.presentation.menuMeta
 
 import com.example.betalifeup.presentation.model.Meta
 import com.example.betalifeup.presentation.model.Nivel

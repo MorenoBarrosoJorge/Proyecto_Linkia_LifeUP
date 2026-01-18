@@ -52,6 +52,7 @@ fun formatFecha(timestamp: Long): String {
 fun MenuScreen(
     navigateToCreator: () -> Unit = {},
     navigateToCustom2: (metaId: String) -> Unit = {},
+    navigateToMenuMeta: (String) -> Unit,
     viewModel: MenuViewModel = viewModel()
 ) {
     val metasList by viewModel.metas.collectAsState() // Lista de objetos tipo Meta
@@ -97,7 +98,7 @@ fun MenuScreen(
                         meta = meta,
                         expanded = expandedMetaId == meta.id,
                         onClick = {expandedMetaId = if (expandedMetaId == meta.id) null else meta.id },
-                        onComprobarMisionesClick = {/*Comprobar misiones disponibles en el nivel actual*/}
+                        onComprobarMisionesClick = { navigateToMenuMeta(meta.id) }
                     )
                 }
             }

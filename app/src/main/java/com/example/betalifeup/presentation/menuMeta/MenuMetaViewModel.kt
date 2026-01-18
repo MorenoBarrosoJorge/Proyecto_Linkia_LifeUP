@@ -1,4 +1,4 @@
-package com.example.betalifeup.presentation.metaMenu
+package com.example.betalifeup.presentation.menuMeta
 
 import androidx.lifecycle.ViewModel
 import com.example.betalifeup.data.MetaRepository
