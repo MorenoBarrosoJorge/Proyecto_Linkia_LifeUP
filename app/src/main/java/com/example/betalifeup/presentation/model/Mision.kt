@@ -6,5 +6,4 @@ data class Mision (
     val descripcion: String = "",
     val orden: Int = 0,
     val completada:Boolean = false
-
 )
