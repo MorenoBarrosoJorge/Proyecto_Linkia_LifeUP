@@ -28,7 +28,7 @@ class MetaRepository {
 
     fun escucharMetas(
         onResult: (List<Meta>) -> Unit, // Recoge las metas del usaurio actual
-        onError: (Exception) -> Unit = {} // Devuelve el error originado por recoger las metas
+        onError: (Exception) -> Unit = {} // Al detectar un error, se mostará un mensaje informativo en la consola
     ){
 
         val uid = auth.currentUser?.uid?: return // Guarda el id del usuario para poder recoger sus metas disponibles. En caso de no devolver ningun usuario, devuelve null para evitar crasheos
@@ -51,4 +51,5 @@ class MetaRepository {
                 }
             })
     }
+
 }
