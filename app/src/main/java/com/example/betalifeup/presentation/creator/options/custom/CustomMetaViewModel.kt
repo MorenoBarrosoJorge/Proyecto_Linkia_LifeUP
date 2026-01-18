@@ -1,5 +1,8 @@
 package com.example.betalifeup.presentation.creator.options.custom
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.betalifeup.data.MetaRepository
@@ -31,6 +34,13 @@ class CustomMetaViewModel(
 
     fun setFechaLimite(fecha: Long) {
         _metaTemporal.value = _metaTemporal.value.copy(fechaLimite = fecha)
+    }
+
+    var showTips by mutableStateOf(true)
+        private set
+
+    fun ocultarTips() {
+        showTips = false
     }
 
     fun addNivel() {

@@ -16,9 +16,13 @@ import com.example.betalifeup.presentation.creator.options.custom.Custom2Screen
 import com.example.betalifeup.presentation.creator.options.custom.Custom3Screen
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.betalifeup.presentation.creator.options.custom.CustomMetaViewModel
 
 @Composable
 fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){ // Le pasamos como parámetros el Nav y Firebase
+
+    val customMetaViewModel: CustomMetaViewModel = viewModel()
 
     NavHost(navController = navHostController, startDestination="initial"){
         composable("initial"){
@@ -52,26 +56,28 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         }
         composable("custom1"){
             Custom1Screen(// Pantalla de creación de meta personalizada / Título, descripción y fecha límite de la meta
-                navigateToCustom2 = {titulo -> navHostController.navigate("custom2/$titulo")}
+                viewModel = customMetaViewModel,
+                navigateToCustom2 = {navHostController.navigate("custom2")}
             )
         }
-        composable(
-            route = "custom2/{tituloMeta}", // Ruta dinámica
-            arguments = listOf( // Para poder pasar valores entre pantallas (nombre del valor){tipo del valor}
-                navArgument("tituloMeta") { type = NavType.StringType }
-            )
-        ) { backStackEntry -> // Objeto que recoge los valores enviados
-            val tituloMeta = backStackEntry.arguments?.getString("tituloMeta") ?: "" // Recoge el valor de "tituloMeta"
-            Custom2Screen(navController = navHostController, tituloMeta = tituloMeta, onBack = {navHostController.popBackStack()})
+        composable("custom2") {
+            Custom2Screen(
+                viewModel = customMetaViewModel,
+                onBack = {navHostController.popBackStack()},
+                onNavigateToCustom3 = { nivelId -> navHostController.navigate("custom3/$nivelId") })
         }
         composable(
             route = "custom3/{nivelId}",
-            arguments = listOf( // Para poder pasar valores entre pantallas (nombre del valor){tipo del valor}
-                navArgument("nivelId") { type = NavType.IntType }
+            arguments = listOf(
+                navArgument("nivelId") { type = NavType.StringType }
             )
-        ){ backStackEntry ->
-            val nivelId = backStackEntry.arguments?.getInt("nivelId") ?: 0
-            Custom3Screen(nivelId = nivelId, onBack = {navHostController.popBackStack()})
+        ) { backStackEntry ->
+            val nivelId = backStackEntry.arguments?.getString("nivelId") ?: ""
+            Custom3Screen(
+                nivelId = nivelId,
+                onBack = { navHostController.popBackStack() },
+                viewModel = customMetaViewModel
+            )
         }
         composable("recoverCredentials"){
             RecoverCredentialsScreen(

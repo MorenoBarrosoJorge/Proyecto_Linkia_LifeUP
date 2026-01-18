@@ -54,17 +54,18 @@ import com.example.betalifeup.presentation.model.Nivel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel = viewModel()) {
+fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaViewModel = viewModel()) {
 
-    val misionesPorNivel by viewModel.misionesNivel.collectAsState()
-    val misiones = misionesPorNivel[nivelId].orEmpty()
-    var expandedMisionId by remember { mutableStateOf<Int?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
+    val meta by viewModel.metaTemporal.collectAsState()
+    val nivel = meta.niveles.find { it.id == nivelId }
+    val misiones = nivel?.misiones.orEmpty()
+    var expandedMisionId by remember { mutableStateOf<String?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
     var mostrarDialogo by remember { mutableStateOf(false) }
-    var misionEdicion by remember { mutableStateOf<Mision?>(null) }
-    var tituloEditado by remember { mutableStateOf("") }
-    var descripcionEditada by remember { mutableStateOf("") }
-    var misionEliminar by remember { mutableStateOf<Mision?>(null) }
-
+    var mostrarModificar by remember { mutableStateOf(false) }
+    var mostrarEliminar by remember { mutableStateOf(false) }
+    var misionSeleccionadaId by remember { mutableStateOf<String?>(null) }
+    var nuevoTituloMision by remember { mutableStateOf("") }
+    var nuevaDescripcionMision by remember { mutableStateOf("") }
 
 
     Scaffold(
@@ -72,7 +73,7 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
             TopAppBar(
                 title = {
                     Text(
-                        text = "Misiones de Nivel $nivelId",
+                        text = "${nivel?.titulo?: ""} / Misiones",
                         maxLines = 1, // Para evitar que la barra crezca verticalmente
                         overflow = TextOverflow.Ellipsis // Añade puntos suspensivos en caso de tener un título muy largo
                     )
@@ -100,7 +101,6 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
     ) { paddingValues ->
 
         if (misiones.isEmpty()) {
-
             Column{
                 Spacer(modifier = Modifier.padding(paddingValues))
                 Text(
@@ -109,9 +109,7 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
                     fontSize = 16.sp
                 )
             }
-
         } else {
-
             LazyColumn(
                 modifier = Modifier
                     .padding(paddingValues)
@@ -128,11 +126,16 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
                             expandedMisionId =
                                 if (expandedMisionId == mision.id) null else mision.id
                         },
-                        onModificarMisionClick = {
-                            misionEdicion = mision
-                            tituloEditado = mision.titulo
-                            descripcionEditada = mision.descripcion },
-                        onEliminarMisionClick = { misionEliminar = mision }
+                        onModificarMisionClick = { misionId ->
+                            misionSeleccionadaId = misionId
+                            nuevoTituloMision = mision.titulo
+                            nuevaDescripcionMision = mision.descripcion
+                            mostrarModificar = true
+                                                 },
+                        onEliminarMisionClick = { misionId ->
+                            misionSeleccionadaId = misionId
+                            mostrarEliminar = true
+                        }
                     )
                 }
             }
@@ -168,15 +171,15 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
             }
         )
     }
-    if (misionEdicion != null) {
+    if (mostrarModificar) {
         AlertDialog(
-            onDismissRequest = { misionEdicion = null },
+            onDismissRequest = { mostrarModificar = false },
             title = { Text("Modificar misión") },
             text = {
                 Column {
                     OutlinedTextField(
-                        value = tituloEditado,
-                        onValueChange = { tituloEditado = it },
+                        value = nuevoTituloMision,
+                        onValueChange = { nuevoTituloMision = it },
                         label = { Text("Título") },
                         singleLine = true
                     )
@@ -184,8 +187,8 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedTextField(
-                        value = descripcionEditada,
-                        onValueChange = { descripcionEditada = it },
+                        value = nuevaDescripcionMision,
+                        onValueChange = { nuevaDescripcionMision = it },
                         label = { Text("Descripción") }
                     )
                 }
@@ -193,59 +196,66 @@ fun Custom3Screen(nivelId: Int, onBack: () -> Unit, viewModel: Custom2ViewModel 
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.updateMision(
-                            nivelId = nivelId,
-                            misionId = misionEdicion!!.id,
-                            nuevoTitulo = tituloEditado,
-                            nuevaDescripcion = descripcionEditada
-                        )
-                        misionEdicion = null
+                        misionSeleccionadaId?.let { misionId ->
+                            viewModel.updateMision(
+                                nivelId = nivelId,
+                                misionId = misionId,
+                                nuevoTitulo = nuevoTituloMision,
+                                nuevaDescripcion = nuevaDescripcionMision
+                            )
+                        }
+                        nuevoTituloMision = ""
+                        nuevaDescripcionMision = ""
+                        misionSeleccionadaId = null
+                        mostrarModificar = false
                     }
                 ) {
                     Text("Guardar")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { misionEdicion = null }) {
+                TextButton(onClick = {
+                    nuevoTituloMision = ""
+                    nuevaDescripcionMision = ""
+                    misionSeleccionadaId = null
+                    mostrarModificar = false
+                }) {
                     Text("Cancelar")
                 }
             }
         )
     }
-    if (misionEliminar != null) {
+    if (mostrarEliminar){
         AlertDialog(
-            onDismissRequest = {
-                misionEliminar = null
-            },
-            title = {
-                Text("Eliminar misión")
-            },
-            text = {
-                Text("¿Estás seguro de que quieres eliminar esta misión? Esta acción no se puede deshacer.")
-            },
+            onDismissRequest = { mostrarEliminar = false },
+            title = { Text("Modificar misión") },
+            text = { Text("¿Estás seguro? Esta acción no se puede deshacer") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.deleteMision(
-                            nivelId = nivelId,
-                            misionId = misionEliminar!!.id
-                        )
-                        misionEliminar = null
+                        misionSeleccionadaId?.let { misionId ->
+                            viewModel.deleteMision(
+                                nivelId = nivelId,
+                                misionId = misionId
+                            )
+                        }
+                        misionSeleccionadaId = null
+                        mostrarModificar = false
                     }
                 ) {
                     Text("Eliminar")
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { misionEliminar = null }
-                ) {
+                TextButton(onClick = {
+                    misionSeleccionadaId = null
+                    mostrarModificar = false
+                }) {
                     Text("Cancelar")
                 }
             }
         )
     }
-
 }
 
 @Composable
@@ -253,8 +263,8 @@ fun MisionItem(
     mision: Mision,
     expanded: Boolean,
     onClick: () -> Unit = {},
-    onModificarMisionClick: () -> Unit = {},
-    onEliminarMisionClick: () -> Unit = {}
+    onModificarMisionClick: (String) -> Unit = {},
+    onEliminarMisionClick: (String) -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -297,13 +307,13 @@ fun MisionItem(
                     ) {
                         Button(
                             // State hoisting + event callbacks
-                            onClick = onModificarMisionClick
+                            onClick = { onModificarMisionClick(mision.id) }
                         ) {
                             Text("Modificar")
                         }
                         Button(
                             // State hoisting + event callbacks
-                            onClick = onEliminarMisionClick
+                            onClick = { onEliminarMisionClick(mision.id) }
                         ) {
                             Text("Eliminar")
                         }
