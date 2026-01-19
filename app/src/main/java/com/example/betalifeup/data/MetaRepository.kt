@@ -10,7 +10,7 @@ class MetaRepository {
     private val auth = FirebaseAuth.getInstance()
     private val database = FirebaseDatabase.getInstance().reference
 
-    fun subirMeta(userID: String, meta: Meta){
+    fun subirMeta(userID: String, meta: Meta) {
 
         val uid = userID
         val metaRef = database
@@ -29,23 +29,29 @@ class MetaRepository {
     fun escucharMetas(
         onResult: (List<Meta>) -> Unit, // Recoge las metas del usaurio actual
         onError: (Exception) -> Unit = {} // Al detectar un error, se mostará un mensaje informativo en la consola
-    ){
+    ) {
 
-        val uid = auth.currentUser?.uid?: return // Guarda el id del usuario para poder recoger sus metas disponibles. En caso de no devolver ningun usuario, devuelve null para evitar crasheos
+        val uid = auth.currentUser?.uid
+            ?: return // Guarda el id del usuario para poder recoger sus metas disponibles. En caso de no devolver ningun usuario, devuelve null para evitar crasheos
 
         database.child("users")
             .child(uid)
             .child("metas")
-            .addValueEventListener(object: ValueEventListener{ // Mistener en tiempo real
-                override fun onDataChange(snapshot: DataSnapshot){ /*Se llama a esta función al entrar por primera vez en la pantalla "Menú" y cada vez que hay algún cambio en alguna de las metas activas
+            .addValueEventListener(object : ValueEventListener { // Mistener en tiempo real
+                override fun onDataChange(snapshot: DataSnapshot) { /*Se llama a esta función al entrar por primera vez en la pantalla "Menú" y cada vez que hay algún cambio en alguna de las metas activas
                                                                      El parámetro snapshot recoge el estado actual de las metas activas del usuario*/
-                    val metas = snapshot.children.mapNotNull { metaSnap -> // Se recoge cada una de las metas existentes (snapshot.children) y se convierten en objetos tipo "Meta" (.mapNotNull evita nulls)
-                        val meta = metaSnap.getValue(Meta::class.java) // Por cada meta, se recogen sus valores (titulo, descripción...) y se convierten de campos JSON a atributos de Meta
-                        meta?.copy(id = metaSnap.key ?: "") // Añade el id de la meta y lo integra con el resto de atributos
-                    }
+                    val metas =
+                        snapshot.children.mapNotNull { metaSnap -> // Se recoge cada una de las metas existentes (snapshot.children) y se convierten en objetos tipo "Meta" (.mapNotNull evita nulls)
+                            val meta =
+                                metaSnap.getValue(Meta::class.java) // Por cada meta, se recogen sus valores (titulo, descripción...) y se convierten de campos JSON a atributos de Meta
+                            meta?.copy(
+                                id = metaSnap.key ?: ""
+                            ) // Añade el id de la meta y lo integra con el resto de atributos
+                        }
                     onResult(metas) // Al obtener resultado, devuelve la lista de metas recogidas
                 }
-                override fun onCancelled(error: DatabaseError){
+
+                override fun onCancelled(error: DatabaseError) {
                     Log.e("Firebase", "Error cargando metas", error.toException())
                     onError(error.toException()) // Devolvemos la excepción que informa de ello
                 }
@@ -56,7 +62,7 @@ class MetaRepository {
         metaId: String,
         onResult: (Meta) -> Unit,
         onError: (Throwable) -> Unit
-    ){
+    ) {
         val uid = auth.currentUser?.uid ?: return
 
         database.child("users")
@@ -70,6 +76,7 @@ class MetaRepository {
                         onResult(meta.copy(id = snapshot.key ?: ""))
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     Log.e("Firebase", "Error escuchando meta", error.toException())
                     onError(error.toException())
@@ -84,15 +91,31 @@ class MetaRepository {
         nivelId: String,
         misionId: String
     ) {
-        database.child("metas")
+        val metaRef = database
+            .child("users")
             .child(userId)
+            .child("metas")
             .child(metaId)
-            .child("niveles")
-            .child(nivelId)
-            .child("misiones")
-            .child(misionId)
-            .child("completada")
-            .setValue(true)
-    }
 
+        // Primero obtenemos la meta completa
+        metaRef.get().addOnSuccessListener { snapshot ->
+            val meta = snapshot.getValue(Meta::class.java)
+            if (meta != null) {
+                val nivelesActualizados = meta.niveles.map { nivel ->
+                    if (nivel.id == nivelId) {
+                        val misionesActualizadas = nivel.misiones.map { mision ->
+                            if (mision.id == misionId) mision.copy(completada = true)
+                            else mision
+                        }
+                        nivel.copy(misiones = misionesActualizadas)
+                    } else nivel
+                }
+
+                // Sobrescribimos toda la lista de niveles
+                metaRef.child("niveles").setValue(nivelesActualizados)
+            }
+        }.addOnFailureListener { e ->
+            Log.e("Firebase", "Error actualizando misión", e)
+        }
+    }
 }
