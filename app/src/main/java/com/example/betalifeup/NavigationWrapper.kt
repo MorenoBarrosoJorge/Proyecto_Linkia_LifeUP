@@ -19,6 +19,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.betalifeup.presentation.creator.options.custom.CustomMetaViewModel
+import com.example.betalifeup.presentation.profile.ProfileScreen
 import com.example.betalifeup.presentation.menuMeta.MenuMetaViewModel
 
 @Composable
@@ -49,8 +50,12 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         composable("menu"){
             MenuScreen( // Pantalla de Menú de usuario. Accedemos solo con credenciales correctas
                 navigateToCreator = { navHostController.navigate("creator") },
+                navigateToProfile = { navHostController.navigate("profile") },
                 navigateToMenuMeta = { metaId -> navHostController.navigate("menuMeta/${metaId}") }
             )
+        }
+        composable("profile"){
+            ProfileScreen(navigateBack = { navHostController.popBackStack() })
         }
         composable(
             route = "menuMeta/{metaId}",

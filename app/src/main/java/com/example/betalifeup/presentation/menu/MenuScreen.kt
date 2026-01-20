@@ -36,8 +36,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBar
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.foundation.layout.size
 
 
 fun formatFecha(timestamp: Long): String {
@@ -51,7 +54,7 @@ fun formatFecha(timestamp: Long): String {
 @Composable
 fun MenuScreen(
     navigateToCreator: () -> Unit = {},
-    navigateToCustom2: (metaId: String) -> Unit = {},
+    navigateToProfile: () -> Unit,
     navigateToMenuMeta: (String) -> Unit,
     viewModel: MenuViewModel = viewModel()
 ) {
@@ -65,7 +68,16 @@ fun MenuScreen(
                     Text(
                         text="LISTA DE METAS",
                         color = Color.Black,
-                        fontSize = 24.sp) }
+                        fontSize = 24.sp) },
+                actions = {
+                    IconButton(onClick = { navigateToProfile() }) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Perfil",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
             )
         },
         containerColor = Color.Black,
