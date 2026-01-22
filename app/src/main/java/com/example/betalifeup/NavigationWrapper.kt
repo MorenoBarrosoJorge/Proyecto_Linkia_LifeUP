@@ -19,9 +19,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.betalifeup.presentation.creator.options.custom.CustomMetaViewModel
+import com.example.betalifeup.presentation.creator.options.fast.FastScreen
 import com.example.betalifeup.presentation.profile.ProfileScreen
-import com.example.betalifeup.presentation.menuMeta.MenuMetaViewModel
-
 @Composable
 fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){ // Le pasamos como parámetros el Nav y Firebase
 
@@ -72,7 +71,14 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         }
         composable("creator"){
             CreatorScreen( // Pantalla de creación de metas. Accedemos desde el Menú de usuario
-                navigateToCustom1 = {navHostController.navigate("custom1")}
+                navigateToCustom1 = {navHostController.navigate("custom1")},
+                navigateToFast = {navHostController.navigate("fast")}
+            )
+        }
+        composable("fast"){
+            FastScreen(
+                onBack = {navHostController.popBackStack()},
+                onMetaConfirmada = {navHostController.navigate("menu")}
             )
         }
         composable("custom1"){

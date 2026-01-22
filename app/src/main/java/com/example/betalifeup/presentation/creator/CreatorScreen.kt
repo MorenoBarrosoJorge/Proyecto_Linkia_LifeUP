@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun CreatorScreen(navigateToCustom1: () -> Unit = {}) {
+fun CreatorScreen(navigateToCustom1: () -> Unit = {}, navigateToFast: () -> Unit) {
 
     Column (modifier = Modifier.fillMaxSize().background(color = Color.Black), horizontalAlignment = Alignment.CenterHorizontally){
         Spacer(modifier = Modifier.height(8.dp))
         Text(text="Elige una de las opciones para crear tu nueva meta:", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = { navigateToCustom1() },
             modifier = Modifier
@@ -41,6 +41,16 @@ fun CreatorScreen(navigateToCustom1: () -> Unit = {}) {
         )
         {
             Text(text="Personalizada")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = { navigateToFast() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+        )
+        {
+            Text(text="Rápida")
         }
         Spacer(modifier = Modifier.height(8.dp))
 
