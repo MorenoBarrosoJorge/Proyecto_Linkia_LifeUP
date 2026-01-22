@@ -32,9 +32,21 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+
+import android.net.Uri
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.background
+import androidx.compose.ui.Alignment
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.material.icons.filled.Person
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +60,14 @@ fun ProfileScreen(
     val mensaje by viewModel.mensaje.collectAsState()
     var desplegarCambioContrasena by remember { mutableStateOf(false) }
     var nuevaContrasena by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            viewModel.onImagenSeleccionada(it)
+        }
+    }
 
     Scaffold (
         topBar = {
@@ -84,18 +104,32 @@ fun ProfileScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
+            ProfileImage(
+                imageUri = uiState.imagenUri,
+                onClick = {
+                    imagePicker.launch("image/*")
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Pulsa la imagen para cambiarla",
+                color = Color.LightGray,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
             Text("Cuenta", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(16.dp))
             Text("Email", fontWeight = FontWeight.Bold)
             Text(email)
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text="Cambiar contraseña",
+                text = "Cambiar contraseña",
                 color = Color.Blue,
                 fontWeight = FontWeight.Bold,
                 textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable{ desplegarCambioContrasena = true }
-                )
+                modifier = Modifier.clickable { if (!desplegarCambioContrasena) desplegarCambioContrasena = true else desplegarCambioContrasena = false }
+            )
             if (desplegarCambioContrasena) {
                 /*Expandir y mostrar objetos necesarios para realizar cambio de contraseña*/
                 Spacer(modifier = Modifier.height(24.dp))
@@ -137,5 +171,37 @@ fun ProfileScreen(
             },
             text = { Text(it) }
         )
+    }
+}
+
+@Composable
+fun ProfileImage(
+    imageUri: Uri?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(120.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        if (imageUri != null) {
+            AsyncImage(
+                model = imageUri,
+                contentDescription = "Imagen de perfil",
+                contentScale = ContentScale.Crop,
+                modifier = modifier.fillMaxSize()
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                modifier = modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
