@@ -55,7 +55,10 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             )
         }
         composable("profile"){
-            ProfileScreen(navigateBack = { navHostController.popBackStack() })
+            ProfileScreen(
+                navigateBack =
+                { navHostController.popBackStack() },
+                navigateToInitial = { navHostController.navigate("initial") })
         }
         composable(
             route = "menuMeta/{metaId}",
