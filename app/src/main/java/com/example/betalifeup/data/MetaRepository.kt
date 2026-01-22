@@ -110,9 +110,20 @@ class MetaRepository {
                         nivel.copy(misiones = misionesActualizadas)
                     } else nivel
                 }
+                val metaCompletada = nivelesActualizados.all { nivel ->
+                    nivel.misiones.all { it.completada }
+                }
+
+                val updates = mutableMapOf<String, Any>(
+                    "niveles" to nivelesActualizados
+                )
+
+                if (metaCompletada && meta.fechaCompletada == null) {
+                    updates["fechaCompletada"] = System.currentTimeMillis()
+                }
 
                 // Sobrescribimos toda la lista de niveles
-                metaRef.child("niveles").setValue(nivelesActualizados)
+                metaRef.updateChildren(updates)
             }
         }.addOnFailureListener { e ->
             Log.e("Firebase", "Error actualizando misión", e)

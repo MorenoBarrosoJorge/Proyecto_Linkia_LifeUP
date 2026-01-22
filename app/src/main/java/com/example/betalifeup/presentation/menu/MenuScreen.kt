@@ -41,6 +41,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.graphics.StrokeCap
 
 
 fun formatFecha(timestamp: Long): String {
@@ -125,6 +127,7 @@ fun MetaItem(
     onClick: () -> Unit,
     onComprobarMisionesClick: () -> Unit
 ){
+    val progreso = meta.progresoMeta()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -152,7 +155,15 @@ fun MetaItem(
                 text = "Fecha límite: ${formatFecha(meta.fechaLimite)}",
                 color = Color.LightGray
             )
-
+            LinearProgressIndicator(
+                progress = progreso,
+                color = Color.Green,
+                trackColor = Color.White,
+                strokeCap = StrokeCap.Round,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
             AnimatedVisibility(
                 visible = expanded,
                 enter = fadeIn() + expandVertically(),
