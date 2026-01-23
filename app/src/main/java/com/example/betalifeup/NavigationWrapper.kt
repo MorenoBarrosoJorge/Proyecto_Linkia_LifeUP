@@ -44,7 +44,8 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         composable("signup"){
             SignupScreen( // Pantalla de registro de usuario. Nos lleva a la pantalla de Menú si registramos correctamente
                 auth,
-                navigateToMenu = {navHostController.navigate("menu")}
+                navigateToMenu = {navHostController.navigate("menu")},
+                navigateBack = {navHostController.popBackStack()}
                 )
         }
         composable("menu"){
