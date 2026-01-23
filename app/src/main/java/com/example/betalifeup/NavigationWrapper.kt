@@ -112,7 +112,8 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         composable("recoverCredentials"){
             RecoverCredentialsScreen(
                 auth,
-                navigateToLogin = {navHostController.navigate("login")}
+                navigateToLogin = {navHostController.navigate("login")},
+                navigateBack = {navHostController.popBackStack()}
             )
         }
     }

@@ -47,7 +47,7 @@ import androidx.compose.material3.IconButton
 
 
 @Composable
-fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {},navigateBack: () -> Unit, navigateToRecoverCredentials: () -> Unit = {}) {
+fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateBack: () -> Unit, navigateToRecoverCredentials: () -> Unit = {}) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
