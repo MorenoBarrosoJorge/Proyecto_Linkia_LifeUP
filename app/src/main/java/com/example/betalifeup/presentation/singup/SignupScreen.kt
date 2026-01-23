@@ -28,10 +28,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.betalifeup.R
-import com.example.betalifeup.ui.theme.Black
 import com.example.betalifeup.ui.theme.SelectedField
 import com.example.betalifeup.ui.theme.UnselectedField
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun SignupScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit) { // Pasamos como parámetros el autentificador de credenciales y el navegador al menú.
@@ -40,7 +40,7 @@ fun SignupScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit) { // Pasamos co
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Black)
+            .background(Color.Black)
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ){

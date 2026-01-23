@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import com.example.betalifeup.ui.theme.Black
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Button
@@ -42,7 +41,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.StrokeCap
+import com.example.betalifeup.ui.theme.principalNaranja
 
 
 fun formatFecha(timestamp: Long): String {
@@ -69,7 +72,8 @@ fun MenuScreen(
                 title = {
                     Text(
                         text="LISTA DE METAS",
-                        color = Color.Black,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 24.sp) },
                 actions = {
                     IconButton(onClick = { navigateToProfile() }) {
@@ -79,7 +83,10 @@ fun MenuScreen(
                             modifier = Modifier.size(32.dp)
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = principalNaranja
+                )
             )
         },
         containerColor = Color.Black,

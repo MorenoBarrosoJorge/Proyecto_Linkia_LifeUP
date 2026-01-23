@@ -2,19 +2,10 @@ package com.example.betalifeup.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val principalNaranja = Color(0xFFFF8A00)
+val secundarioAmarillo = Color(0xFFFFD84D)
+val botonMorado = Color(0xFFAA17CF)
+val botonBlacno = Color(0xFFFFFFFF)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-val Gray= Color(0xFF393939)
-val Black = Color(0xFF121212)
-val Green = Color(0xFF49dd63)
-val BackgroundButton = Color(0xFF111111)
-val ShapeButton = Color(0xFF3e3e3e)
-
-val SelectedField = Color(0xFF7c7c7c)
-val UnselectedField = Color(0xFF4a4a4a)
+val SelectedField = Color(0xFFFFFFFF)
+val UnselectedField = Color(0xFFFFFFFF)
