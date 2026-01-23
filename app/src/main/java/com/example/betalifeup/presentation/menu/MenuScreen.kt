@@ -1,11 +1,13 @@
 package com.example.betalifeup.presentation.menu
 
+import android.util.Log
 import com.example.betalifeup.presentation.model.Meta
 import androidx.compose.foundation.background
 import androidx.compose.material3.Scaffold
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Text
@@ -23,8 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.style.TextOverflow
-import java.text.SimpleDateFormat
-import java.util.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.*
 import androidx.compose.foundation.clickable
@@ -33,6 +33,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -40,20 +41,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.StrokeCap
+import com.example.betalifeup.ui.theme.botonMorado
 import com.example.betalifeup.ui.theme.principalNaranja
+import com.example.betalifeup.ui.theme.secundarioAmarillo
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FabPosition
+import androidx.compose.foundation.layout.offset
+import com.example.betalifeup.ui.theme.descripcionMetaCard
+import com.example.betalifeup.ui.theme.fechaMetaCard
+import com.example.betalifeup.ui.theme.metaCard
+import com.example.betalifeup.ui.theme.progresoFondo
+import com.example.betalifeup.ui.theme.tituloMetaCard
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import com.example.betalifeup.ui.theme.botonCompletarMeta
 
-
-fun formatFecha(timestamp: Long): String {
-    if (timestamp == 0L) return "Sin fecha límite"
-
-    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    return sdf.format(Date(timestamp))
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,8 +71,10 @@ fun MenuScreen(
     navigateToMenuMeta: (String) -> Unit,
     viewModel: MenuViewModel = viewModel()
 ) {
-    val metasList by viewModel.metas.collectAsState() // Lista de objetos tipo Meta
+    val metasList by viewModel.metas.collectAsState()
+    val metasNoCompletadas = metasList.filter { it.fechaCompletada == null }
     var expandedMetaId by remember { mutableStateOf<String?>(null) }
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
 
     Scaffold(
         topBar = {
@@ -74,13 +84,14 @@ fun MenuScreen(
                         text="LISTA DE METAS",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp) },
+                        fontSize = 28.sp) },
                 actions = {
                     IconButton(onClick = { navigateToProfile() }) {
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = "Perfil",
-                            modifier = Modifier.size(32.dp)
+                            tint = Color.White,
+                            modifier = Modifier.size(40.dp)
                         )
                     }
                 },
@@ -89,35 +100,49 @@ fun MenuScreen(
                 )
             )
         },
-        containerColor = Color.Black,
         bottomBar = {
-            Button(
+            BottomAppBar(
+                containerColor = secundarioAmarillo
+            ){}
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
                 onClick = { navigateToCreator() },
+                containerColor = botonMorado,
+                contentColor = Color.White,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-            ) {
-                Text(text = "Nueva meta", color = Color.White, fontSize = 20.sp)
+                    .offset(y = (100).dp)
+                    .size(width = 220.dp, height = 60.dp)
+            ){
+                Text(
+                    text = "Crear meta +",
+                    fontSize = 20.sp
+                )
             }
-        }
+        },
+        floatingActionButtonPosition = FabPosition.Center
     ){ paddingValues ->
-        if (metasList.isEmpty()){
-            Spacer(modifier = Modifier.height(16.dp))
+        if (metasNoCompletadas.isEmpty()){
+            Spacer(modifier = Modifier.height(18.dp))
             Text(text="Aún no has creado ninguna misión", color = Color.White, fontSize = 20.sp)
         } else {
             LazyColumn(
                 modifier = Modifier
                     .padding(paddingValues)
+                    .background(secundarioAmarillo)
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(
-                    items = metasList,
-                    key = { it.id } // ID de cada meta
+                    items = metasNoCompletadas,
+                    key = { it.id }
                 ) { meta ->
                     MetaItem(
                         meta = meta,
                         expanded = expandedMetaId == meta.id,
+                        viewModel = viewModel,
+                        userId = userId,
                         onClick = {expandedMetaId = if (expandedMetaId == meta.id) null else meta.id },
                         onComprobarMisionesClick = { navigateToMenuMeta(meta.id) }
                     )
@@ -131,41 +156,69 @@ fun MenuScreen(
 fun MetaItem(
     meta: Meta,
     expanded: Boolean,
+    userId: String?,
+    viewModel: MenuViewModel,
     onClick: () -> Unit,
     onComprobarMisionesClick: () -> Unit
 ){
     val progreso = meta.progresoMeta()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+        colors = CardDefaults.cardColors(containerColor = metaCard),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ){
         Column(modifier = Modifier.padding(16.dp)){
-            Text(
-                text = meta.titulo,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = meta.descripcion,
-                color = Color.White,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Fecha límite: ${formatFecha(meta.fechaLimite)}",
-                color = Color.LightGray
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ){
+                    Text(
+                        text = meta.titulo,
+                        color = tituloMetaCard,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = meta.descripcion,
+                        color = descripcionMetaCard,
+                        fontSize = 16.sp,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Fecha límite: ${viewModel.formatFecha(meta.fechaLimite)}",
+                        fontSize = 14.sp,
+                        color = fechaMetaCard
+                    )
+                }
+                Box(
+                    modifier = Modifier.width(72.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = viewModel.nivelCard(meta),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = tituloMetaCard
+                    )
+                }
+            }
             LinearProgressIndicator(
                 progress = progreso,
-                color = Color.Green,
-                trackColor = Color.White,
+                color = com.example.betalifeup.ui.theme.progreso,
+                trackColor = progresoFondo,
                 strokeCap = StrokeCap.Round,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -177,12 +230,35 @@ fun MetaItem(
                 exit = fadeOut() + shrinkVertically()
             ) {
                 Column {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(
-                        onClick = onComprobarMisionesClick,
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("Misiones disponibles")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    if (viewModel.nivelCard(meta) == "MAX") {
+                        Button(
+                            onClick = {
+                                if (userId != null) {
+                                    viewModel.completarMeta(userId, meta.id)
+                                } else {
+                                    Log.i("FirebaseAuth","Usuario no logeado")
+                                }
+                                      },
+                            modifier = Modifier.align(Alignment.End),
+                            colors = ButtonDefaults.buttonColors(botonCompletarMeta)
+                        ) {
+                            Text(
+                                text = "Completar meta",
+                                color = Color.White
+                            )
+                        }
+                    } else {
+                        Button(
+                            onClick = onComprobarMisionesClick,
+                            modifier = Modifier.align(Alignment.End),
+                            colors = ButtonDefaults.buttonColors(principalNaranja)
+                        ) {
+                            Text(
+                                text = "Misiones disponibles",
+                                color = Color.Black
+                            )
+                        }
                     }
                 }
             }

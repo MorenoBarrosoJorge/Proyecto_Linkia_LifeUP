@@ -129,4 +129,17 @@ class MetaRepository {
             Log.e("Firebase", "Error actualizando misión", e)
         }
     }
+
+    fun marcarMetaComoCompletada(
+        userId: String,
+        metaId: String
+    ) {
+        database
+            .child("users")
+            .child(userId)
+            .child("metas")
+            .child(metaId)
+            .child("fechaCompletada")
+            .setValue(System.currentTimeMillis())
+    }
 }
