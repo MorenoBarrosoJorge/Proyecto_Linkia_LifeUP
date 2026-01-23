@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.Icon
 import androidx.compose.ui.text.font.FontWeight
-import com.example.betalifeup.R
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.mutableStateOf
@@ -24,41 +22,59 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.TextFieldDefaults
-import com.example.betalifeup.ui.theme.SelectedField
-import com.example.betalifeup.ui.theme.UnselectedField
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.text.style.TextDecoration
+import com.example.betalifeup.ui.theme.botonMorado
+import com.example.betalifeup.ui.theme.campoTexto
+import com.example.betalifeup.ui.theme.campoTextoSeleccionado
+import com.example.betalifeup.ui.theme.principalNaranja
+import com.example.betalifeup.ui.theme.secundarioAmarillo
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.IconButton
 
 
 @Composable
-fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateToRecoverCredentials: () -> Unit = {}) { //Le pasamos también una función que permita navegar hasta el menú principal
-    var email by remember { mutableStateOf("") } // Inicializamos la variable de "email"
-    var password by remember { mutableStateOf("") } // Inicializamos la variable de "password"
-    var errorMessage by remember { mutableStateOf("") }   // Inicializamos la variable que mostará mensaje de eror en caso de credenciales incorrectas
+fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {},navigateBack: () -> Unit, navigateToRecoverCredentials: () -> Unit = {}) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Brush.verticalGradient(listOf(
+                secundarioAmarillo, principalNaranja
+            ), startY = 0f, endY = 800f))
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
+        Spacer(Modifier.height(8.dp))
         Row{
-            Icon(
-                painter = painterResource(id = R.drawable.ic_back_24),
-                contentDescription = "",
-                tint = White,
-                modifier = Modifier.padding(vertical = 24.dp)
-                    .size(24.dp)
-            )
+            IconButton(onClick = navigateBack) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    tint = Color.White,
+                    contentDescription = "Volver a inicio",
+                    modifier = Modifier.size(40.dp)
+                )
+            }
             Spacer(Modifier.weight(1f))
         }
+        Spacer(Modifier.height(50.dp))
         Text(
             text="Correo electrónico",
             color = White,
@@ -68,10 +84,11 @@ fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateToR
         TextField(
             value=email,
             onValueChange = {email = it},
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = UnselectedField,
-                focusedContainerColor = SelectedField
+                unfocusedContainerColor = campoTexto,
+                focusedContainerColor = campoTextoSeleccionado
             )
         )
         Spacer(Modifier.height(48.dp))
@@ -84,15 +101,33 @@ fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateToR
         TextField(
             value=password,
             onValueChange = {password = it},
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (passwordVisible) Icons.Default.Visibility
+                else Icons.Default.VisibilityOff
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = null)
+                }
+            },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = UnselectedField,
-                focusedContainerColor = SelectedField
+                unfocusedContainerColor = campoTexto,
+                focusedContainerColor = campoTextoSeleccionado
             )
         )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "He olvidado mi contraseña",
+            color = Blue,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            textDecoration = TextDecoration.Underline,
+            modifier = Modifier.clickable {
+                navigateToRecoverCredentials()
+            }
+        )
         Spacer(Modifier.height(48.dp))
-
-        // Mensaje de error en caso de credenciales incorrectas
         if (errorMessage.isNotEmpty()) {
             Text(
                 text = errorMessage,
@@ -102,18 +137,9 @@ fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateToR
             )
             Spacer(Modifier.height(16.dp))
         }
-
-        Button(onClick = {
-            /*
-            * Llamamos a uno de los métodos de la variable 'auth', correspondiente al autentificador de credenciales.
-            *
-            * Si las credenciales corresponden a las de un usuario registrado en Firebase, podremos navegar hasta su correspondiente "Menú de usuario".
-            *
-            * Si las credenciales no corresponden a ningún usuario, se mostrará un mensaje de error, eliminando las credenciales introducidas por el usuario para que vuela a escribirlas.
-            * */
+        Button(
+            onClick = {
             errorMessage = ""
-
-            // Comprobamos si el correo existe
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -129,19 +155,20 @@ fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateToR
                         password = ""
                     }
                 }
-        }) {
-            Text("Iniciar sesión")
+        },
+            colors = ButtonDefaults.buttonColors(botonMorado),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 6.dp,
+                pressedElevation = 0.dp
+            ),
+            modifier = Modifier.size(width = 220.dp, height = 60.dp)
+            ) {
+            Text(
+                text = "Iniciar sesión",
+                fontSize = 24.sp,
+                color = Color.White)
         }
         Spacer(Modifier.height(12.dp))
-        Text(
-            text = "He olvidado mi contraseña",
-            color = Blue,
-            fontWeight = FontWeight.Bold,
-            textDecoration = TextDecoration.Underline,
-            modifier = Modifier.clickable {
-                navigateToRecoverCredentials()
-            }
-        )
     }
 }
 

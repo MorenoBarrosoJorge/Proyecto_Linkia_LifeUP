@@ -37,6 +37,7 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             LoginScreen( // Pantalla de inicio de sesión. Nos lleva a la pantalla de Menú si logeamos correctamente
                 auth,
                 navigateToMenu = {navHostController.navigate("menu")},
+                navigateBack = {navHostController.popBackStack()},
                 navigateToRecoverCredentials = {navHostController.navigate("recoverCredentials")}
             ) //{ navHostController.navigate("menu") }
         }
