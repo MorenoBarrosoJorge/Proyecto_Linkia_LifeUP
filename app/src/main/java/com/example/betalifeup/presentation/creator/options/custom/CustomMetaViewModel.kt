@@ -17,12 +17,13 @@ import java.util.UUID
 class CustomMetaViewModel(
     private val repository: MetaRepository = MetaRepository()
 ) : ViewModel() {
-    private val _metaTemporal = MutableStateFlow( // Se guardan todos los datos referentes a la meta de manera temporal
+    private val _metaTemporal = MutableStateFlow(
         Meta(id = "", titulo = "", descripcion = "", fechaLimite = 0L, niveles = emptyList())
     )
-    val metaTemporal: StateFlow<Meta> = _metaTemporal // Recoge el estado de la meta temporal para mostrar por pantalla la persistencia de los datos añadidos y/o modificados
+    val metaTemporal: StateFlow<Meta> = _metaTemporal
 
-    // FUNCIONES PARA ESTABLECER O MODIFICAR CAMPOS DE LA META, NIVEL O MISIÓN
+    var mostrarTips by mutableStateOf(true)
+        private set
 
     fun setTitulo(titulo: String) {
         _metaTemporal.value = _metaTemporal.value.copy(titulo = titulo)
@@ -36,11 +37,8 @@ class CustomMetaViewModel(
         _metaTemporal.value = _metaTemporal.value.copy(fechaLimite = fecha)
     }
 
-    var showTips by mutableStateOf(true)
-        private set
-
     fun ocultarTips() {
-        showTips = false
+        mostrarTips = false
     }
 
     fun addNivel() {

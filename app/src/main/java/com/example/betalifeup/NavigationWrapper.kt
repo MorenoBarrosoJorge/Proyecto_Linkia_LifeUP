@@ -89,6 +89,7 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
                 viewModel = customMetaViewModel,
                 navigateToCustom2 = {navHostController.navigate("custom2")},
                 navigateToMenu = {navHostController.navigate("menu")},
+                navigateBack = {navHostController.popBackStack()},
                 auth = auth
             )
         }

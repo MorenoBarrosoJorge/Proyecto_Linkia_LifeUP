@@ -17,4 +17,18 @@ data class Meta(
         }
         return misionesCompletadas.toFloat() / totalMisiones.toFloat()
     }
+
+    fun obtenerNivelActualMeta(): Int? {
+        val nivelActual = niveles
+            .sortedBy { it.orden }
+            .firstOrNull { nivel ->
+                nivel.misiones.any { !it.completada }
+            }
+        return nivelActual?.orden
+    }
+
+    fun nivelMaximoMeta(): String {
+        val nivel = obtenerNivelActualMeta()
+        return nivel?.let { "Nv $it" } ?: "MAX"
+    }
 }

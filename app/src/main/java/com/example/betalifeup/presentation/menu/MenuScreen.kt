@@ -61,6 +61,9 @@ import com.example.betalifeup.ui.theme.tituloMetaCard
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import com.example.betalifeup.ui.theme.botonCompletarMeta
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -198,7 +201,7 @@ fun MetaItem(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Fecha límite: ${viewModel.formatFecha(meta.fechaLimite)}",
+                        text = "Fecha límite: ${formatFecha(meta.fechaLimite)}",
                         fontSize = 14.sp,
                         color = fechaMetaCard
                     )
@@ -208,7 +211,7 @@ fun MetaItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = viewModel.nivelCard(meta),
+                        text = meta.nivelMaximoMeta(),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = tituloMetaCard
@@ -231,7 +234,7 @@ fun MetaItem(
             ) {
                 Column {
                     Spacer(modifier = Modifier.height(12.dp))
-                    if (viewModel.nivelCard(meta) == "MAX") {
+                    if (meta.nivelMaximoMeta() == "MAX") {
                         Button(
                             onClick = {
                                 if (userId != null) {
@@ -264,4 +267,10 @@ fun MetaItem(
             }
         }
     }
+}
+
+fun formatFecha(timestamp: Long): String {
+    if (timestamp == 0L) return "Sin fecha límite"
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return sdf.format(Date(timestamp))
 }

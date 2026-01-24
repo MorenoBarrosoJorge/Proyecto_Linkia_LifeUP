@@ -29,31 +29,10 @@ class MenuViewModel(
         )
     }
 
-    fun formatFecha(timestamp: Long): String {
-        if (timestamp == 0L) return "Sin fecha límite"
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        return sdf.format(Date(timestamp))
-    }
-
-    fun obtenerNivelActualMeta(meta: Meta): Int? {
-        val nivelActual = meta.niveles
-            .sortedBy { it.orden }
-            .firstOrNull { nivel ->
-                nivel.misiones.any { !it.completada }
-            }
-        return nivelActual?.orden
-    }
-
-    fun nivelCard(meta: Meta): String {
-        val nivel = obtenerNivelActualMeta(meta)
-        return nivel?.let { "Nv $it" } ?: "MAX"
-    }
-
     fun completarMeta(userId: String, metaId: String) {
         repository.marcarMetaComoCompletada(
             userId = userId,
             metaId = metaId
         )
     }
-
 }

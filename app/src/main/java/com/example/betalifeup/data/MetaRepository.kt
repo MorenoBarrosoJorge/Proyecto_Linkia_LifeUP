@@ -58,7 +58,7 @@ class MetaRepository {
             })
     }
 
-    fun escucharMetaNivelActual( //Similar a escucharMetas(), solo que esta función escucha la meta indicada a través de su ID
+    fun escucharMetaNivelActual(
         metaId: String,
         onResult: (Meta) -> Unit,
         onError: (Throwable) -> Unit
@@ -97,7 +97,6 @@ class MetaRepository {
             .child("metas")
             .child(metaId)
 
-        // Primero obtenemos la meta completa
         metaRef.get().addOnSuccessListener { snapshot ->
             val meta = snapshot.getValue(Meta::class.java)
             if (meta != null) {

@@ -25,8 +25,28 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import android.app.DatePickerDialog
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color.Companion.White
 import java.util.Calendar
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import com.example.betalifeup.ui.theme.botonBlacno
+import com.example.betalifeup.ui.theme.botonMorado
+import com.example.betalifeup.ui.theme.campoTexto
+import com.example.betalifeup.ui.theme.campoTextoSeleccionado
+import com.example.betalifeup.ui.theme.principalNaranja
+import com.example.betalifeup.ui.theme.secundarioAmarillo
+import com.example.betalifeup.ui.theme.tituloMetaCard
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -64,14 +84,11 @@ fun TipsDialog(showTips: () -> Unit, tips: List<String>) {
 
 
 @Composable
-fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit = {}, navigateToMenu: () -> Unit, auth: FirebaseAuth){
+fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit = {}, navigateToMenu: () -> Unit, navigateBack: () -> Unit, auth: FirebaseAuth){
     val context = LocalContext.current
     val meta by viewModel.metaTemporal.collectAsState()
     var calendar = remember { Calendar.getInstance() }
-
-    // Muestra la fecha límite de la meta
-    val timeText =
-        if (meta.fechaLimite == 0L) {
+    val timeText = if (meta.fechaLimite == 0L) {
             "Sin fecha límite"
         } else {
             val cal = Calendar.getInstance().apply {
@@ -79,8 +96,6 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
             }
             "${cal.get(Calendar.DAY_OF_MONTH)}/${cal.get(Calendar.MONTH) + 1}/${cal.get(Calendar.YEAR)}"
         }
-
-    // Selección de fecha límite para la meta
     val datePickerDialog = DatePickerDialog(
         context,
         { _, year, month, dayOfMonth ->
@@ -92,57 +107,141 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
         calendar.get(Calendar.DAY_OF_MONTH)
     )
 
-    // Para impedir la selección de una fecha pasada
     datePickerDialog.datePicker.minDate = System.currentTimeMillis()
 
-    if (viewModel.showTips) {
+    if (viewModel.mostrarTips) {
         TipsDialog(
             showTips = { viewModel.ocultarTips() },
             tips = listOf("Completa todos los campos", "Usa datos reales", "Revisa antes de guardar")
         )
     } else {
         Column(
-            modifier = Modifier.fillMaxSize().background(Color.Black),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(principalNaranja)
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
+            Spacer(Modifier.height(8.dp))
+            Row {
+                IconButton(onClick = navigateBack) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        tint = Color.White,
+                        contentDescription = "Volver a inicio",
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+                Spacer(Modifier.weight(1f))
+            }
+            Spacer(Modifier.height(50.dp))
+            Text(
+                text = "Título de la meta",
+                color = White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 28.sp
+            )
+            Spacer(Modifier.height(8.dp))
             TextField(
                 value = meta.titulo,
                 onValueChange = viewModel::setTitulo,
-                label = { Text("Título de la meta") }
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = campoTexto,
+                    focusedContainerColor = campoTextoSeleccionado
+                ),
+                modifier = Modifier.fillMaxWidth()
             )
-
+            Spacer(Modifier.height(50.dp))
+            Text(
+                text = "Definición de la meta",
+                color = White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 28.sp
+            )
             TextField(
                 value = meta.descripcion,
                 onValueChange = viewModel::setDescripcion,
-                label = { Text("Descripción de la meta") }
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = campoTexto,
+                    focusedContainerColor = campoTextoSeleccionado
+                ),
+                modifier = Modifier.fillMaxWidth()
             )
-
+            Spacer(Modifier.height(50.dp))
             Text(
-                text = timeText,
-                color = Color.LightGray,
-                fontSize = 14.sp
+                text = "*Opcional",
+                fontSize = 12.sp,
+                color = Color.White
             )
-
+            Text(
+                text = "Fecha seleccionada: ${timeText}",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(modifier = Modifier.height(8.dp))
-
-            Button(onClick = { datePickerDialog.show() }) {
-                Text("Seleccionar fecha")
+            Button(
+                onClick = { datePickerDialog.show() },
+                modifier = Modifier
+                    .width(250.dp)
+                    .height(60.dp)
+                    .padding(horizontal = 8.dp),
+                colors = ButtonDefaults.buttonColors(botonBlacno),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 0.dp
+                )
+            ) {
+                Text(
+                    text = "Seleccionar fecha",
+                    color = Color.DarkGray,
+                    fontSize = 18.sp
+                )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(onClick = { navigateToCustom2() }) {
-                Text("Añadir niveles")
+            Spacer(Modifier.height(50.dp))
+            Button(
+                onClick = { navigateToCustom2() },
+                modifier = Modifier
+                    .width(250.dp)
+                    .height(60.dp)
+                    .padding(horizontal = 8.dp),
+                colors = ButtonDefaults.buttonColors(botonBlacno),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 0.dp
+                )
+            ) {
+                Text(
+                    text = "Añadir niveles +",
+                    color = Color.DarkGray,
+                    fontSize = 18.sp
+                )
             }
-            Button(onClick = {
+            Spacer(Modifier.height(150.dp))
+            Button(
+                onClick = {
                 val userId = auth.currentUser?.uid
                 if (!userId.isNullOrEmpty()) {
                     viewModel.guardarMeta(userId)
                     navigateToMenu()
-                }
-            }) {
-                Text("Subir Meta")
+                    }
+                },
+                modifier = Modifier
+                    .width(250.dp)
+                    .height(60.dp)
+                    .padding(horizontal = 8.dp),
+                colors = ButtonDefaults.buttonColors(botonMorado),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 0.dp
+                )
+            ) {
+                Text(
+                    text = "Subir Meta",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
