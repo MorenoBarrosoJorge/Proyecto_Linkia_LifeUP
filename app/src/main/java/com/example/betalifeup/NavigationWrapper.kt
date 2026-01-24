@@ -74,7 +74,8 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         composable("creator"){
             CreatorScreen( // Pantalla de creación de metas. Accedemos desde el Menú de usuario
                 navigateToCustom1 = {navHostController.navigate("custom1")},
-                navigateToFast = {navHostController.navigate("fast")}
+                navigateToFast = {navHostController.navigate("fast")},
+                navigateBack = {navHostController.popBackStack()}
             )
         }
         composable("fast"){
