@@ -107,15 +107,9 @@ class MetaRepository {
                         nivel.copy(misiones = misionesActualizadas)
                     } else nivel
                 }
-                val metaCompletada = nivelesActualizados.all { nivel ->
-                    nivel.misiones.all { it.completada }
-                }
                 val updates = mutableMapOf<String, Any>(
                     "niveles" to nivelesActualizados
                 )
-                if (metaCompletada && meta.fechaCompletada == null) {
-                    updates["fechaCompletada"] = System.currentTimeMillis()
-                }
                 metaRef.updateChildren(updates)
             }
         }.addOnFailureListener { e ->
@@ -134,5 +128,19 @@ class MetaRepository {
             .child(metaId)
             .child("fechaCompletada")
             .setValue(System.currentTimeMillis())
+    }
+
+    fun eliminarMeta(userId: String, metaId: String) {
+        database.child("users")
+            .child(userId)
+            .child("metas")
+            .child(metaId)
+            .removeValue()
+            .addOnSuccessListener {
+                Log.d("Firebase", "Meta eliminada correctamente")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firebase", "Error eliminando meta", e)
+            }
     }
 }

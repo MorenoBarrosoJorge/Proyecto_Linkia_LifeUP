@@ -73,7 +73,7 @@ fun MenuMetaScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("🎉 Meta completada")
+                    Text("Meta completada")
                 }
             }
             else -> {

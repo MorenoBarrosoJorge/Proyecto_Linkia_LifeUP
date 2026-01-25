@@ -34,19 +34,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color.Companion.White
 import java.util.Calendar
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import com.example.betalifeup.ui.theme.botonBlacno
 import com.example.betalifeup.ui.theme.botonMorado
 import com.example.betalifeup.ui.theme.campoTexto
 import com.example.betalifeup.ui.theme.campoTextoSeleccionado
 import com.example.betalifeup.ui.theme.principalNaranja
-import com.example.betalifeup.ui.theme.secundarioAmarillo
-import com.example.betalifeup.ui.theme.tituloMetaCard
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -223,6 +219,7 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
                 val userId = auth.currentUser?.uid
                 if (!userId.isNullOrEmpty()) {
                     viewModel.guardarMeta(userId)
+                    viewModel.reiniciarValoresMeta()
                     navigateToMenu()
                     }
                 },

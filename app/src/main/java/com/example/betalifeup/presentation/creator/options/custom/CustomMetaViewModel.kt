@@ -114,4 +114,16 @@ class CustomMetaViewModel(
             repository.subirMeta(userId, metaParaGuardar)
         }
     }
+
+    fun reiniciarValoresMeta() {
+        _metaTemporal.value = Meta(
+            id = "",
+            titulo = "",
+            descripcion = "",
+            fechaLimite = 0L,
+            fechaCreacion = 0L,
+            niveles = emptyList(),
+            fechaCompletada = null
+        )
+    }
 }

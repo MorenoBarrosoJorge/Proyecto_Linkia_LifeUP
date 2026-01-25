@@ -133,8 +133,8 @@ fun FastScreen(
                             .currentUser
                             ?.uid
                             .orEmpty()
-
                         viewModel.confirmarMetaPrompt(userId)
+                        onMetaConfirmada()
                     }
                 )
             }

@@ -15,6 +15,7 @@ object MetaTemplates {
             Nivel(
                 id = UUID.randomUUID().toString(),
                 titulo = "Nivel 1",
+                orden = 1,
                 misiones = listOf(
                     Mision(
                         id = UUID.randomUUID().toString(),
@@ -33,6 +34,7 @@ object MetaTemplates {
             Nivel(
                 id = UUID.randomUUID().toString(),
                 titulo = "Nivel 2",
+                orden = 2,
                 misiones = listOf(
                     Mision(
                         id = UUID.randomUUID().toString(),
