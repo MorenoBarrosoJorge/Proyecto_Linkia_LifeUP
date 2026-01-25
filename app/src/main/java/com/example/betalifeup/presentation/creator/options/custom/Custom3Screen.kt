@@ -7,7 +7,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,17 +39,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import com.example.betalifeup.presentation.model.Nivel
+import com.example.betalifeup.ui.theme.botonModificarrMeta
+import com.example.betalifeup.ui.theme.botonMorado
+import com.example.betalifeup.ui.theme.secundarioAmarillo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +63,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
     val meta by viewModel.metaTemporal.collectAsState()
     val nivel = meta.niveles.find { it.id == nivelId }
     val misionesOrdenadas = nivel?.misiones?.sortedBy { it.orden }.orEmpty()
-    var expandedMisionId by remember { mutableStateOf<String?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
+    var expandedMisionId by remember { mutableStateOf<String?>(null) }
     var mostrarDialogo by remember { mutableStateOf(false) }
     var mostrarModificar by remember { mutableStateOf(false) }
     var mostrarEliminar by remember { mutableStateOf(false) }
@@ -74,8 +78,8 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
                 title = {
                     Text(
                         text = "${nivel?.titulo?: ""} / Misiones",
-                        maxLines = 1, // Para evitar que la barra crezca verticalmente
-                        overflow = TextOverflow.Ellipsis // Añade puntos suspensivos en caso de tener un título muy largo
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 navigationIcon = {
@@ -85,7 +89,10 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
                             contentDescription = "Volver"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = secundarioAmarillo
+                )
             )
         },
         floatingActionButton = {
@@ -101,8 +108,8 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
     ) { paddingValues ->
 
         if (misionesOrdenadas.isEmpty()) {
-            Column{
-                Spacer(modifier = Modifier.padding(paddingValues))
+            Column(modifier = Modifier.padding(paddingValues), horizontalAlignment = Alignment.CenterHorizontally){
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Aún no se ha creado ninguna misión",
                     color = Color.DarkGray,
@@ -228,7 +235,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
     if (mostrarEliminar){
         AlertDialog(
             onDismissRequest = { mostrarEliminar = false },
-            title = { Text("Modificar misión") },
+            title = { Text("Eliminar misión") },
             text = { Text("¿Estás seguro? Esta acción no se puede deshacer") },
             confirmButton = {
                 TextButton(
@@ -240,7 +247,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
                             )
                         }
                         misionSeleccionadaId = null
-                        mostrarModificar = false
+                        mostrarEliminar = false
                     }
                 ) {
                     Text("Eliminar")
@@ -306,16 +313,24 @@ fun MisionItem(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(
-                            // State hoisting + event callbacks
-                            onClick = { onModificarMisionClick(mision.id) }
+                            onClick = { onModificarMisionClick(mision.id) },
+                            colors = ButtonDefaults.buttonColors(botonModificarrMeta)
                         ) {
-                            Text("Modificar")
+                            Text(
+                                text = "Modificar",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                         Button(
-                            // State hoisting + event callbacks
-                            onClick = { onEliminarMisionClick(mision.id) }
+                            onClick = { onEliminarMisionClick(mision.id) },
+                            colors = ButtonDefaults.buttonColors(botonMorado)
                         ) {
-                            Text("Eliminar")
+                            Text(
+                                text = "Eliminar",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }

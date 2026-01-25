@@ -24,3 +24,5 @@ val progreso = Color(0xFFAA17CF)
 val progresoFondo = Color(0xFF7B7B7B)
 
 val botonCompletarMeta = Color(0xFF00C2B8)
+
+val botonModificarrMeta = Color(0xFF01C3B8)
