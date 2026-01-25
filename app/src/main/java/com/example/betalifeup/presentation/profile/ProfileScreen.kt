@@ -131,7 +131,6 @@ fun ProfileScreen(
                 modifier = Modifier.clickable { if (!desplegarCambioContrasena) desplegarCambioContrasena = true else desplegarCambioContrasena = false }
             )
             if (desplegarCambioContrasena) {
-                /*Expandir y mostrar objetos necesarios para realizar cambio de contraseña*/
                 Spacer(modifier = Modifier.height(24.dp))
                 OutlinedTextField(
                     value = nuevaContrasena,

@@ -22,19 +22,19 @@ import com.example.betalifeup.presentation.creator.options.custom.CustomMetaView
 import com.example.betalifeup.presentation.creator.options.fast.FastScreen
 import com.example.betalifeup.presentation.profile.ProfileScreen
 @Composable
-fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){ // Le pasamos como parámetros el Nav y Firebase
+fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
 
     val customMetaViewModel: CustomMetaViewModel = viewModel()
 
     NavHost(navController = navHostController, startDestination="initial"){
         composable("initial"){
-            InitialScreen( // Pantalla de inicio de sesión/registro
+            InitialScreen(
                 navigateToLogin = {navHostController.navigate("login")},
                 navigateToSignUp = {navHostController.navigate("signup")}
             )
         }
         composable("login"){
-            LoginScreen( // Pantalla de inicio de sesión. Nos lleva a la pantalla de Menú si logeamos correctamente
+            LoginScreen(
                 auth,
                 navigateToMenu = {navHostController.navigate("menu")},
                 navigateBack = {navHostController.popBackStack()},
@@ -42,14 +42,14 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             ) //{ navHostController.navigate("menu") }
         }
         composable("signup"){
-            SignupScreen( // Pantalla de registro de usuario. Nos lleva a la pantalla de Menú si registramos correctamente
+            SignupScreen(
                 auth,
                 navigateToMenu = {navHostController.navigate("menu")},
                 navigateBack = {navHostController.popBackStack()}
                 )
         }
         composable("menu"){
-            MenuScreen( // Pantalla de Menú de usuario. Accedemos solo con credenciales correctas
+            MenuScreen(
                 navigateToCreator = { navHostController.navigate("creator") },
                 navigateToProfile = { navHostController.navigate("profile") },
                 navigateToMenuMeta = { metaId -> navHostController.navigate("menuMeta/${metaId}") }
@@ -72,7 +72,7 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             )
         }
         composable("creator"){
-            CreatorScreen( // Pantalla de creación de metas. Accedemos desde el Menú de usuario
+            CreatorScreen(
                 navigateToCustom1 = {navHostController.navigate("custom1")},
                 navigateToFast = {navHostController.navigate("fast")},
                 navigateBack = {navHostController.popBackStack()}
@@ -85,7 +85,7 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
             )
         }
         composable("custom1"){
-            Custom1Screen(// Pantalla de creación de meta personalizada / Título, descripción y fecha límite de la meta
+            Custom1Screen(
                 viewModel = customMetaViewModel,
                 navigateToCustom2 = {navHostController.navigate("custom2")},
                 navigateToMenu = {navHostController.navigate("menu")},

@@ -11,7 +11,7 @@ class ProfileViewModel(): ViewModel(){
     private val auth = FirebaseAuth.getInstance()
     private val _email = MutableStateFlow(auth.currentUser?.email.orEmpty())
     val email: StateFlow<String> = _email
-    private val _mensaje = MutableStateFlow<String?>(null) // Para recoger mensaje de error
+    private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje
 
     private val _uiState = MutableStateFlow(ProfileUiState())

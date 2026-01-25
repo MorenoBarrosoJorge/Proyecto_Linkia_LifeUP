@@ -1,5 +1,6 @@
 package com.example.betalifeup.presentation.creator.options.fast
 
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,9 +29,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.example.betalifeup.ui.theme.botonDeshabilitado
+import com.example.betalifeup.ui.theme.botonMorado
+import com.example.betalifeup.ui.theme.principalNaranja
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -51,37 +61,54 @@ fun FastScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Crear meta con IA") },
+                title = { Text(text = "Crear meta con IA", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = principalNaranja
+                )
             )
         }
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(principalNaranja)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
                 value = uiState.prompt,
                 onValueChange = viewModel::recogerPrompt,
-                label = { Text("Indica el objetivo de tu meta") },
-                placeholder = { Text("Ej: Aprender Python desde cero") },
+                label = { Text(text = "Indica el objetivo de tu meta", color = Color.White) },
+                placeholder = { Text(text = "Ej: Aprender Python desde cero") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.cargando
+                enabled = !uiState.cargando,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.Gray
+                )
             )
             Button(
                 onClick = { viewModel.generarMetaPrompt() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = uiState.prompt.isNotBlank() && !uiState.cargando
+                enabled = uiState.prompt.isNotBlank() && !uiState.cargando,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = botonMorado,
+                    contentColor = Color.White,
+                    disabledContainerColor = botonDeshabilitado,
+                    disabledContentColor = Color.DarkGray
+                )
             ) {
-                Text("Generar meta")
+                Text(
+                    text = "Generar meta",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
             if (uiState.cargando) {
                 Box(

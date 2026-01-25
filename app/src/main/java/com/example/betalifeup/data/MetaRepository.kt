@@ -27,33 +27,32 @@ class MetaRepository {
     }
 
     fun escucharMetas(
-        onResult: (List<Meta>) -> Unit, // Recoge las metas del usaurio actual
-        onError: (Exception) -> Unit = {} // Al detectar un error, se mostará un mensaje informativo en la consola
+        onResult: (List<Meta>) -> Unit,
+        onError: (Exception) -> Unit = {}
     ) {
 
         val uid = auth.currentUser?.uid
-            ?: return // Guarda el id del usuario para poder recoger sus metas disponibles. En caso de no devolver ningun usuario, devuelve null para evitar crasheos
+            ?: return
 
         database.child("users")
             .child(uid)
             .child("metas")
-            .addValueEventListener(object : ValueEventListener { // Mistener en tiempo real
-                override fun onDataChange(snapshot: DataSnapshot) { /*Se llama a esta función al entrar por primera vez en la pantalla "Menú" y cada vez que hay algún cambio en alguna de las metas activas
-                                                                     El parámetro snapshot recoge el estado actual de las metas activas del usuario*/
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     val metas =
-                        snapshot.children.mapNotNull { metaSnap -> // Se recoge cada una de las metas existentes (snapshot.children) y se convierten en objetos tipo "Meta" (.mapNotNull evita nulls)
+                        snapshot.children.mapNotNull { metaSnap ->
                             val meta =
-                                metaSnap.getValue(Meta::class.java) // Por cada meta, se recogen sus valores (titulo, descripción...) y se convierten de campos JSON a atributos de Meta
+                                metaSnap.getValue(Meta::class.java)
                             meta?.copy(
                                 id = metaSnap.key ?: ""
-                            ) // Añade el id de la meta y lo integra con el resto de atributos
+                            )
                         }
-                    onResult(metas) // Al obtener resultado, devuelve la lista de metas recogidas
+                    onResult(metas)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     Log.e("Firebase", "Error cargando metas", error.toException())
-                    onError(error.toException()) // Devolvemos la excepción que informa de ello
+                    onError(error.toException())
                 }
             })
     }
@@ -76,7 +75,6 @@ class MetaRepository {
                         onResult(meta.copy(id = snapshot.key ?: ""))
                     }
                 }
-
                 override fun onCancelled(error: DatabaseError) {
                     Log.e("Firebase", "Error escuchando meta", error.toException())
                     onError(error.toException())
@@ -112,16 +110,12 @@ class MetaRepository {
                 val metaCompletada = nivelesActualizados.all { nivel ->
                     nivel.misiones.all { it.completada }
                 }
-
                 val updates = mutableMapOf<String, Any>(
                     "niveles" to nivelesActualizados
                 )
-
                 if (metaCompletada && meta.fechaCompletada == null) {
                     updates["fechaCompletada"] = System.currentTimeMillis()
                 }
-
-                // Sobrescribimos toda la lista de niveles
                 metaRef.updateChildren(updates)
             }
         }.addOnFailureListener { e ->
