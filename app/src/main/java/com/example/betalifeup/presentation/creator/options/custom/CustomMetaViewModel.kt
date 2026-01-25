@@ -9,8 +9,10 @@ import com.example.betalifeup.data.MetaRepository
 import com.example.betalifeup.presentation.model.Meta
 import com.example.betalifeup.presentation.model.Nivel
 import com.example.betalifeup.presentation.model.Mision
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -24,6 +26,10 @@ class CustomMetaViewModel(
 
     var mostrarTips by mutableStateOf(true)
         private set
+
+    private val _uiEvent = MutableSharedFlow<CustomUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
 
     fun setTitulo(titulo: String) {
         _metaTemporal.value = _metaTemporal.value.copy(titulo = titulo)
@@ -41,8 +47,16 @@ class CustomMetaViewModel(
         mostrarTips = false
     }
 
-    fun addNivel() {
+    fun addNivel(){
         val nivelesActuales = _metaTemporal.value.niveles
+        if (nivelesActuales.isNotEmpty() && nivelesActuales.last().misiones.isEmpty()){
+            viewModelScope.launch {
+                _uiEvent.emit(
+                    CustomUiEvent.ShowSnackbar("¡Tienes que añadir al menos una misión antes de crear un nuevo nivel!")
+                )
+            }
+            return
+        }
         val nuevoNivel = Nivel(
             id = UUID.randomUUID().toString(),
             titulo = "Nivel ${nivelesActuales.size + 1}",
@@ -55,7 +69,7 @@ class CustomMetaViewModel(
     }
 
     fun addMision(nivelId: String, titulo: String, descripcion: String) {
-        val nivelesActuales = _metaTemporal.value.niveles.map { nivel -> // .map Recoge cada nivel de la lista de niveles para crear una nueva lista temporal sobre la que trabajar después
+        val nivelesActuales = _metaTemporal.value.niveles.map { nivel ->
             if (nivel.id == nivelId) {
                 val nuevaMision = Mision(
                     id = UUID.randomUUID().toString(),
@@ -94,7 +108,7 @@ class CustomMetaViewModel(
 
     fun guardarMeta(userId: String) {
         val metaParaGuardar = _metaTemporal.value.copy(
-            id = "" // Aunque esté vacío, el id lo genera Firebase al subir la meta a la base de datos
+            id = ""
         )
         viewModelScope.launch {
             repository.subirMeta(userId, metaParaGuardar)

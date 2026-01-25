@@ -24,6 +24,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.betalifeup.ui.theme.botonMorado
+import com.example.betalifeup.ui.theme.principalNaranja
+import com.example.betalifeup.ui.theme.secundarioAmarillo
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,16 +45,30 @@ fun Custom2Screen(
     val meta by viewModel.metaTemporal.collectAsState()
     val nivelesOrdenados = meta.niveles.sortedBy { it.orden }
     var mostrarDialogo by remember { mutableStateOf(false) }
-    var expandedNivelId by remember { mutableStateOf<String?>(null) } // Variable que permite cerrar una Card que está expandida si el usuario pulsa sobre otra Card diferente
+    var expandedNivelId by remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is CustomUiEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "META: ${meta.titulo}",
-                        maxLines = 1, // Para evitar que la barra crezca verticalmente
-                        overflow = TextOverflow.Ellipsis // Añade puntos suspensivos en caso de tener un título muy largo
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 navigationIcon = {
@@ -56,7 +78,10 @@ fun Custom2Screen(
                             contentDescription = "Volver"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = principalNaranja
+                )
             )
         },
         floatingActionButton = {
@@ -69,10 +94,8 @@ fun Custom2Screen(
                 )
             }
         }
-    ) { paddingValues -> // Espacio de TopAppBar
-        // Voy a crear un nivel de manera automática al entrar en esta pantalla
+    ) { paddingValues ->
         if (nivelesOrdenados.isEmpty()){
-
             viewModel.addNivel()
             LazyColumn(
                 modifier = Modifier
@@ -153,7 +176,8 @@ fun NivelItem(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable{ onClick() }
-            .animateContentSize()
+            .animateContentSize(),
+        colors = CardDefaults.cardColors(secundarioAmarillo)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -172,11 +196,19 @@ fun NivelItem(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
-                        // State hoisting + event callbacks
                         onClick = { onAddMisionesClick(nivel.id) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(botonMorado),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 6.dp,
+                            pressedElevation = 0.dp
+                        ),
                     ) {
-                        Text("Añadir / Modificar misiones")
+                        Text(
+                            text = "Añadir / Modificar misiones",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
