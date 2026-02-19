@@ -139,20 +139,39 @@ fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateBac
         }
         Button(
             onClick = {
-            errorMessage = ""
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        navigateToMenu()
-                    } else {
-                        val exception = task.exception
-                        if (exception is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException){
-                            errorMessage = "Credenciales incorrectas. Vuelve a intentarlo."
-                        } else {
-                            errorMessage = "Error al iniciar sesión. Inténtalo de nuevo."
-                        }
-                        email = ""
-                        password = ""
+                errorMessage = ""
+                when {
+                    email.isBlank() && password.isBlank() -> {
+                        errorMessage = "No has introducido ninguna credencial"
+                    }
+                    email.isBlank() -> {
+                        errorMessage = "No has introducido ningún correo electrónico"
+                    }
+                    password.isBlank() -> {
+                        errorMessage = "No has introducido ninguna contraseña"
+                    }
+                    !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                        errorMessage = "No has introducido un correo electrónico válido"
+                    }
+                    password.length < 10 -> {
+                        errorMessage = "No has introducido una contraseña válida"
+                    }
+                    else -> {
+                        auth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    navigateToMenu()
+                                } else {
+                                    val exception = task.exception
+                                    if (exception is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
+                                        errorMessage = "Credenciales incorrectas. Vuelve a intentarlo."
+                                    } else {
+                                        errorMessage = "Error al iniciar sesión. Inténtalo de nuevo."
+                                    }
+                                    email = ""
+                                    password = ""
+                                }
+                            }
                     }
                 }
         },
