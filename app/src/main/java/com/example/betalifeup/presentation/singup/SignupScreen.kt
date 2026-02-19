@@ -54,7 +54,7 @@ fun SignupScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit, navigateBack: (
     var password by remember { mutableStateOf("") }
     var confirmarPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -153,9 +153,9 @@ fun SignupScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit, navigateBack: (
             )
         )
         Spacer(Modifier.height(48.dp))
-        if (message.isNotEmpty()){
+        if (errorMessage.isNotEmpty()){
             Text(
-                text = message,
+                text = errorMessage,
                 color = Color.Red,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
@@ -168,30 +168,46 @@ fun SignupScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit, navigateBack: (
         ){
             Button(
                 onClick = {
-                    message = ""
-                    if (email.isBlank()) {
-                        message = "No has introducido ningún correo. Vuelve a intentarlo."
-                        return@Button
-                    }
-                    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                        message = "Introduce un correo electrónico válido."
-                        return@Button
-                    }
-                    if (password!=confirmarPassword){
-                        message = "Las contraseñas no coinciden. Vuelve a intentarlo."
-                        return@Button
-                    }
-                    auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.i("Correcto", "SIGN UP OK")
-                            navigateToMenu()
-                        } else {
-                            val excepcion = task.exception
-                            when (excepcion) {
-                                is FirebaseAuthUserCollisionException -> {
-                                    message = "El correo que has introducido ya tiene una cuenta asociada."
+                    errorMessage = ""
+                    when {
+                        email.isBlank() && password.isBlank() -> {
+                            errorMessage = "No has introducido ninguna credencial"
+                            return@Button
+                        }
+                        email.isBlank() -> {
+                            errorMessage = "No has introducido ningún correo."
+                            return@Button
+                        }
+                        !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                            errorMessage = "Introduce un correo electrónico válido."
+                            return@Button
+                        }
+                        password.isBlank() -> {
+                            errorMessage = "No has introducido ninguna contrasña"
+                            return@Button
+                        }
+                        !password.isBlank() && confirmarPassword.isBlank() -> {
+                            errorMessage = "Debes confirmar la contraseña de nuevo"
+                            return@Button
+                        }
+                        password!=confirmarPassword -> {
+                            errorMessage = "Las contrasñas no coinciden. Vuelve a intentarlo"
+                            return@Button
+                        }
+                        else -> {
+                            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Log.i("Correcto", "SIGN UP OK")
+                                    navigateToMenu()
+                                } else {
+                                    val excepcion = task.exception
+                                    when (excepcion) {
+                                        is FirebaseAuthUserCollisionException -> {
+                                            errorMessage = "El correo que has introducido ya tiene una cuenta asociada."
+                                        }
+                                        else -> errorMessage = "Error inesperado: ${excepcion?.localizedMessage}"
+                                    }
                                 }
-                                else -> message = "Error inesperado: ${excepcion?.localizedMessage}"
                             }
                         }
                     }
