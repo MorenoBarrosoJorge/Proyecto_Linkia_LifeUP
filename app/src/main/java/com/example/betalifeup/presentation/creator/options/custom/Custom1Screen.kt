@@ -30,10 +30,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color.Companion.White
 import java.util.Calendar
 import androidx.compose.ui.platform.LocalContext
@@ -44,6 +48,7 @@ import com.example.betalifeup.ui.theme.campoTexto
 import com.example.betalifeup.ui.theme.campoTextoSeleccionado
 import com.example.betalifeup.ui.theme.principalNaranja
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.runtime.LaunchedEffect
 
 
 @Composable
@@ -83,7 +88,9 @@ fun TipsDialog(showTips: () -> Unit, tips: List<String>) {
 fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit = {}, navigateToMenu: () -> Unit, navigateBack: () -> Unit, auth: FirebaseAuth){
     val context = LocalContext.current
     val meta by viewModel.metaTemporal.collectAsState()
+    var errorMessage by remember { mutableStateOf("") }
     var calendar = remember { Calendar.getInstance() }
+    var confirmarSalida by remember { mutableStateOf(false) }
     val timeText = if (meta.fechaLimite == 0L) {
             "Sin fecha límite"
         } else {
@@ -111,6 +118,36 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
             tips = listOf("Completa todos los campos", "Usa datos reales", "Revisa antes de guardar")
         )
     } else {
+        LaunchedEffect(viewModel.metaGuardada) {
+            if (viewModel.metaGuardada) {
+                viewModel.reiniciarValoresMeta()
+                navigateToMenu()
+            }
+        }
+        if (confirmarSalida){
+            AlertDialog(
+                onDismissRequest = {confirmarSalida = false},
+                text = {Text("No ahs guardado la meta ¿Segur@ que quieres salir?")},
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            errorMessage = ""
+                            viewModel.reiniciarValoresMeta()
+                            navigateToMenu()
+                        }
+                    ) {
+                        Text("Salir")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {confirmarSalida = false}
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -120,7 +157,7 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
         ) {
             Spacer(Modifier.height(8.dp))
             Row {
-                IconButton(onClick = navigateBack) {
+                IconButton(onClick = {confirmarSalida = true}) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         tint = Color.White,
@@ -196,7 +233,10 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
             }
             Spacer(Modifier.height(50.dp))
             Button(
-                onClick = { navigateToCustom2() },
+                onClick = {
+                    navigateToCustom2()
+                    errorMessage = ""
+                          },
                 modifier = Modifier
                     .width(250.dp)
                     .height(60.dp)
@@ -213,14 +253,40 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
                     fontSize = 18.sp
                 )
             }
-            Spacer(Modifier.height(150.dp))
+            if (errorMessage.isNotEmpty()){
+                Spacer(Modifier.height(50.dp))
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(90.dp))
+            } else {
+                Spacer(Modifier.height(150.dp))
+            }
             Button(
                 onClick = {
                 val userId = auth.currentUser?.uid
                 if (!userId.isNullOrEmpty()) {
-                    viewModel.guardarMeta(userId)
-                    viewModel.reiniciarValoresMeta()
-                    navigateToMenu()
+                    when {
+                        meta.titulo.isBlank() -> {
+                            errorMessage = "No has introducido ningún título a la meta."
+                        }
+                        meta.niveles.isEmpty() -> {
+                            errorMessage = "Aún no has craedo ningún nivel"
+                        }
+                        meta.niveles.size < 3  && !meta.niveles.any { nivel -> nivel.misiones.isEmpty()} -> {
+                            errorMessage = "Debes crear por lo menos 3 niveles. Actualmente tienes estos niveles: ${meta.niveles.size}"
+                        }
+                        meta.niveles.any { nivel -> nivel.misiones.isEmpty()} -> {
+                            errorMessage = "Hay algún nivel sin misiones asignadas. Crea al menos una misión en cada nivel"
+                        }
+                        else -> {
+                            errorMessage = ""
+                            viewModel.guardarMeta(userId)
+                        }
+                    }
                     }
                 },
                 modifier = Modifier

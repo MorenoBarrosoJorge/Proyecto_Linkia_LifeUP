@@ -81,7 +81,7 @@ fun NavigationWrapper(navHostController: NavHostController, auth: FirebaseAuth){
         composable("fast"){
             FastScreen(
                 onBack = {navHostController.popBackStack()},
-                onMetaConfirmada = {navHostController.navigate("menu")}
+                navigateToMenu = {navHostController.navigate("menu")}
             )
         }
         composable("custom1"){

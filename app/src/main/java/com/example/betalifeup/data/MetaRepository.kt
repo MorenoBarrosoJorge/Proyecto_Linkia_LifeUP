@@ -10,7 +10,7 @@ class MetaRepository {
     private val auth = FirebaseAuth.getInstance()
     private val database = FirebaseDatabase.getInstance().reference
 
-    fun subirMeta(userID: String, meta: Meta) {
+    fun subirMeta(userID: String, meta: Meta, onSucces: () -> Unit, onError: (String) -> Unit) {
 
         val uid = userID
         val metaRef = database
@@ -24,6 +24,18 @@ class MetaRepository {
             fechaCreacion = System.currentTimeMillis()
         )
         metaRef.setValue(metaFechaCreacion)
+            .addOnSuccessListener {
+            onSucces()
+        }
+            .addOnFailureListener { exception ->
+                val mensaje = when (exception) {
+                    is com.google.firebase.FirebaseNetworkException ->
+                        "Error de conexión. Revisa tu internet."
+                    else ->
+                        "Error al guardar la meta."
+                }
+                onError(mensaje)
+            }
     }
 
     fun escucharMetas(

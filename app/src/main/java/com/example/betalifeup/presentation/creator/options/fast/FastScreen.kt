@@ -35,6 +35,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -48,14 +52,16 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun FastScreen(
     onBack: () -> Unit,
-    onMetaConfirmada: () -> Unit,
+    navigateToMenu: () -> Unit,
     viewModel: FastViewModel = viewModel()
 ){
     val uiState by viewModel.uiState.collectAsState()
+    var errorMessage by remember { mutableStateOf("") }
 
-    LaunchedEffect(uiState.metaGuardada) {
-        if (uiState.metaGuardada) {
-            onMetaConfirmada()
+
+    LaunchedEffect(viewModel.metaGuardada) {
+        if (viewModel.metaGuardada){
+            navigateToMenu()
         }
     }
     Scaffold(
@@ -133,8 +139,8 @@ fun FastScreen(
                             .currentUser
                             ?.uid
                             .orEmpty()
+                        errorMessage = ""
                         viewModel.confirmarMetaPrompt(userId)
-                        onMetaConfirmada()
                     }
                 )
             }

@@ -30,6 +30,18 @@ class CustomMetaViewModel(
     private val _uiEvent = MutableSharedFlow<CustomUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
+    var subiendo by mutableStateOf(true)
+        private set
+
+    var errorMessage by mutableStateOf("")
+        private set
+
+    var metaGuardada by mutableStateOf(false)
+        private set
+
+
+
+
 
     fun setTitulo(titulo: String) {
         _metaTemporal.value = _metaTemporal.value.copy(titulo = titulo)
@@ -107,12 +119,25 @@ class CustomMetaViewModel(
     }
 
     fun guardarMeta(userId: String) {
+        subiendo = true
+        errorMessage = ""
+        metaGuardada = false
         val metaParaGuardar = _metaTemporal.value.copy(
             id = ""
         )
-        viewModelScope.launch {
-            repository.subirMeta(userId, metaParaGuardar)
-        }
+        repository.subirMeta(
+            userID = userId,
+            meta = metaParaGuardar,
+            onSucces = {
+                subiendo = false
+                metaGuardada = true
+            },
+            onError = { error ->
+                subiendo = false
+                errorMessage = error
+
+            }
+        )
     }
 
     fun reiniciarValoresMeta() {
