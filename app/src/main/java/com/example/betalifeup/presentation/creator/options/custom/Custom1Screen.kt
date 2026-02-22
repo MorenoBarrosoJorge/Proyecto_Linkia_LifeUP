@@ -127,7 +127,7 @@ fun Custom1Screen(viewModel: CustomMetaViewModel, navigateToCustom2: () -> Unit 
         if (confirmarSalida){
             AlertDialog(
                 onDismissRequest = {confirmarSalida = false},
-                text = {Text("No ahs guardado la meta ¿Segur@ que quieres salir?")},
+                text = {Text("No has guardado la meta ¿Segur@ que quieres salir?")},
                 confirmButton = {
                     TextButton(
                         onClick = {

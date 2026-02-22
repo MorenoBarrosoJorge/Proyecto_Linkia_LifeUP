@@ -44,7 +44,21 @@ fun MenuMetaScreen(
             )
         }
     ) { paddingValues ->
-
+        if (viewModel.errorMessage.isNotBlank()){
+            AlertDialog(
+                onDismissRequest = {viewModel.reiniciarError()},
+                text = {Text(text = viewModel.errorMessage)},
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.reiniciarError()
+                        }
+                    ) {
+                        Text("Ok")
+                    }
+                }
+            )
+        }
         when {
             uiState.cargando -> {
                 Box(

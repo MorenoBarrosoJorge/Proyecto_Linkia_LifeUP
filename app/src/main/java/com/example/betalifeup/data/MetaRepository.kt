@@ -131,7 +131,9 @@ class MetaRepository {
 
     fun marcarMetaComoCompletada(
         userId: String,
-        metaId: String
+        metaId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
     ) {
         database
             .child("users")
@@ -140,6 +142,18 @@ class MetaRepository {
             .child(metaId)
             .child("fechaCompletada")
             .setValue(System.currentTimeMillis())
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                val mensaje = when (exception) {
+                    is com.google.firebase.FirebaseNetworkException ->
+                        "Error de conexión. Revisa tu internet."
+                    else ->
+                        "Error al marcar la meta como completada."
+                }
+                onError(mensaje)
+            }
     }
 
     fun eliminarMeta(userId: String, metaId: String) {
@@ -154,5 +168,18 @@ class MetaRepository {
             .addOnFailureListener { e ->
                 Log.e("Firebase", "Error eliminando meta", e)
             }
+    }
+
+    fun conectado(onResult: (Boolean) -> Unit) {
+        database.child(".info/connected")
+            .addListenerForSingleValueEvent(object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val conectado = snapshot.getValue(Boolean::class.java) ?: false
+                    onResult(conectado)
+                }
+                override fun onCancelled(error: DatabaseError){
+                    onResult(false)
+                }
+            })
     }
 }

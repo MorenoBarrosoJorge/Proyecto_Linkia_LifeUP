@@ -1,5 +1,8 @@
 package com.example.betalifeup.presentation.menu
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.betalifeup.presentation.model.Meta
 import com.example.betalifeup.data.MetaRepository
@@ -16,8 +19,22 @@ class MenuViewModel(
     private val _metas = MutableStateFlow<List<Meta>>(emptyList())
     val metas: StateFlow<List<Meta>> = _metas
 
+    var errorMessage by mutableStateOf("")
+        private set
+
+    var metaActualizada by mutableStateOf(false)
+        private set
+
     init {
         cargarMetas()
+    }
+
+    fun reiniciarError() {
+        errorMessage = ""
+    }
+
+    fun reiniciarMetaActualizada() {
+        metaActualizada = false
     }
 
     fun cargarMetas() {
@@ -30,9 +47,21 @@ class MenuViewModel(
     }
 
     fun completarMeta(userId: String, metaId: String) {
-        repository.marcarMetaComoCompletada(
-            userId = userId,
-            metaId = metaId
-        )
+        repository.conectado { conectado ->
+            if (!conectado){
+                errorMessage = "Error de conexión"
+                return@conectado
+            }
+            repository.marcarMetaComoCompletada(
+                userId = userId,
+                metaId = metaId,
+                onSuccess = {
+                    metaActualizada = true
+                },
+                onError = { error ->
+                    errorMessage = error
+                }
+            )
+        }
     }
 }

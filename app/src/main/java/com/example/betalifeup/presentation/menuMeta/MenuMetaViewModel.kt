@@ -1,5 +1,8 @@
 package com.example.betalifeup.presentation.menuMeta
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.betalifeup.data.MetaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,6 +14,20 @@ class MenuMetaViewModel(private val repository: MetaRepository = MetaRepository(
 
     private val _uiState = MutableStateFlow(MenuMetaUiState())
     val uiState: StateFlow<MenuMetaUiState> = _uiState
+
+    var errorMessage by mutableStateOf("")
+        private set
+
+    var misionActualizada by mutableStateOf(false)
+        private set
+
+    fun reiniciarError() {
+        errorMessage = ""
+    }
+
+    fun reiniciarMisionActualizada() {
+        misionActualizada = false
+    }
 
     fun escucharMetaNivelActual(metaId: String) {
         _uiState.value = _uiState.value.copy(cargando = true)
@@ -45,12 +62,17 @@ class MenuMetaViewModel(private val repository: MetaRepository = MetaRepository(
     }
 
     fun completarMision(userId: String, metaId: String, nivelId: String, misionId: String) {
-        repository.actualizarEstadoMision(
-            userId = userId,
-            metaId = metaId,
-            nivelId = nivelId,
-            misionId = misionId
-        )
+        repository.conectado { conectado ->
+            if (!conectado) {
+                errorMessage = "Error de conexión"
+                return@conectado
+            }
+            repository.actualizarEstadoMision(
+                userId = userId,
+                metaId = metaId,
+                nivelId = nivelId,
+                misionId = misionId
+            )
+        }
     }
-
 }

@@ -60,6 +60,8 @@ import com.example.betalifeup.ui.theme.progresoFondo
 import com.example.betalifeup.ui.theme.tituloMetaCard
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import com.example.betalifeup.ui.theme.botonCompletarMeta
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -130,6 +132,35 @@ fun MenuScreen(
             Spacer(modifier = Modifier.height(18.dp))
             Text(text="Aún no has creado ninguna misión", color = Color.White, fontSize = 20.sp)
         } else {
+            if (viewModel.errorMessage.isNotBlank()){
+                AlertDialog(
+                    onDismissRequest = {viewModel.reiniciarError()},
+                    text = {Text(text = viewModel.errorMessage)},
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.reiniciarError()
+                            }
+                        ) {
+                            Text("Ok")
+                        }
+                    }
+                )
+            } else if (viewModel.metaActualizada){
+                AlertDialog(
+                    onDismissRequest = {viewModel.reiniciarMetaActualizada()},
+                    text = {Text("¡Enhorabuena! 🎉 Has completado la meta. Bien hecho.")},
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.reiniciarMetaActualizada()
+                            }
+                        ) {
+                            Text("Ok")
+                        }
+                    }
+                )
+            }
             LazyColumn(
                 modifier = Modifier
                     .padding(paddingValues)
@@ -239,10 +270,8 @@ fun MetaItem(
                             onClick = {
                                 if (userId != null) {
                                     viewModel.completarMeta(userId, meta.id)
-                                } else {
-                                    Log.i("FirebaseAuth","Usuario no logeado")
                                 }
-                                      },
+                            },
                             modifier = Modifier.align(Alignment.End),
                             colors = ButtonDefaults.buttonColors(botonCompletarMeta)
                         ) {

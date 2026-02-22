@@ -47,6 +47,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.Person
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +62,7 @@ fun ProfileScreen(
     var desplegarCambioContrasena by remember { mutableStateOf(false) }
     var nuevaContrasena by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
+    var error by remember { mutableStateOf("") }
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -141,8 +143,12 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = {
-                        if (nuevaContrasena.length >= 6) {
+                        if (viewModel.contrasenaValida(nuevaContrasena)) {
                             viewModel.cambiarContrasena(nuevaContrasena)
+                            nuevaContrasena = ""
+                        }
+                        else {
+                            error = "La contraseña no es válida. Inténtalo de nuevo."
                             nuevaContrasena = ""
                         }
                     },
@@ -150,6 +156,17 @@ fun ProfileScreen(
                 ) {
                     Text("Cambiar contraseña")
                 }
+                if (error.isNotEmpty()){
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = error,
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+
             }
             Spacer(modifier = Modifier.height(24.dp))
             Divider()

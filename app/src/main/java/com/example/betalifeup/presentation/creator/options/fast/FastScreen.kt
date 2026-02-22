@@ -61,6 +61,7 @@ fun FastScreen(
 
     LaunchedEffect(viewModel.metaGuardada) {
         if (viewModel.metaGuardada){
+            errorMessage = ""
             navigateToMenu()
         }
     }
