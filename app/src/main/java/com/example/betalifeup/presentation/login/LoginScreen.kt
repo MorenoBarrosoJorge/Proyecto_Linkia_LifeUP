@@ -44,10 +44,11 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.IconButton
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @Composable
-fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateBack: () -> Unit, navigateToRecoverCredentials: () -> Unit = {}) {
+fun LoginScreen(auth: FirebaseAuth, viewModel: LoginViewModel = viewModel(), navigateToMenu: () -> Unit = {}, navigateBack: () -> Unit, navigateToRecoverCredentials: () -> Unit = {}) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -128,9 +129,9 @@ fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateBac
             }
         )
         Spacer(Modifier.height(48.dp))
-        if (errorMessage.isNotEmpty()) {
+        if (viewModel.errorMessage.isNotEmpty()) {
             Text(
-                text = errorMessage,
+                text = viewModel.errorMessage,
                 color = Color.Red,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
@@ -139,39 +140,11 @@ fun LoginScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit = {}, navigateBac
         }
         Button(
             onClick = {
-                errorMessage = ""
-                when {
-                    email.isBlank() && password.isBlank() -> {
-                        errorMessage = "No has introducido ninguna credencial"
-                    }
-                    email.isBlank() -> {
-                        errorMessage = "No has introducido ningún correo electrónico"
-                    }
-                    password.isBlank() -> {
-                        errorMessage = "No has introducido ninguna contraseña"
-                    }
-                    !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
-                        errorMessage = "No has introducido un correo electrónico válido"
-                    }
-                    password.length < 10 -> {
-                        errorMessage = "No has introducido una contraseña válida"
-                    }
-                    else -> {
-                        auth.signInWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    navigateToMenu()
-                                } else {
-                                    val exception = task.exception
-                                    if (exception is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException) {
-                                        errorMessage = "Credenciales incorrectas. Vuelve a intentarlo."
-                                    } else {
-                                        errorMessage = "Error al iniciar sesión. Inténtalo de nuevo."
-                                    }
-                                    email = ""
-                                    password = ""
-                                }
-                            }
+                viewModel.validarCredenciales(email = email, password = password)
+                if (viewModel.errorMessage.isEmpty()){
+                    viewModel.iniciarUsuario(auth = auth, email = email, password = password)
+                    if (viewModel.confirmar){
+                        navigateToMenu()
                     }
                 }
         },
