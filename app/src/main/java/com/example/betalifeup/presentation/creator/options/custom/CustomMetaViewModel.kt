@@ -40,9 +40,6 @@ class CustomMetaViewModel(
         private set
 
 
-
-
-
     fun setTitulo(titulo: String) {
         _metaTemporal.value = _metaTemporal.value.copy(titulo = titulo)
     }

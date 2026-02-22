@@ -1,7 +1,8 @@
 package com.example.betalifeup.presentation.singup
 
-import android.util.Log
+import android.util.Patterns
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.internal.composableLambdaNInstance
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -24,8 +25,30 @@ class SignupViewModel(): ViewModel() {
                 confirmarPassword.length > 9 &&
                 confirmarPassword.any { it.isDigit() } &&
                 confirmarPassword.any { it.isLowerCase() } &&
-                confirmarPassword.any { it.isUpperCase() }
+                confirmarPassword.any { it.isUpperCase() } &&
+                password == confirmarPassword
 
+    }
+
+    fun validarCredenciales(email: String, password: String){
+        errorMessage = ""
+        when {
+            email.isBlank() && password.isBlank() -> {
+                errorMessage = "No has introducido ninguna credencial"
+            }
+
+            email.isBlank() -> {
+                errorMessage = "No has introducido ningún correo electrónico"
+            }
+
+            password.isBlank() -> {
+                errorMessage = "No has introducido ninguna contraseña"
+            }
+
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                errorMessage = "No has introducido un correo electrónico válido"
+            }
+        }
     }
 
     fun crearUsuario(auth: FirebaseAuth, email: String, password: String){
@@ -38,7 +61,7 @@ class SignupViewModel(): ViewModel() {
                     is FirebaseAuthUserCollisionException -> {
                         errorMessage = "El correo que has introducido ya tiene una cuenta asociada."
                     }
-                    else -> errorMessage = "Error inesperado: ${excepcion?.localizedMessage}"
+                    else -> errorMessage = "Error al intentar completar el registro. Inténtalo de nuevo."
                 }
             }
         }

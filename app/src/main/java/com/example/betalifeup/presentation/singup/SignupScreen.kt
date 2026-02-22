@@ -154,9 +154,9 @@ fun SignupScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit, navigateBack: (
             )
         )
         Spacer(Modifier.height(48.dp))
-        if (errorMessage.isNotEmpty()){
+        if (viewModel.errorMessage.isNotEmpty()){
             Text(
-                text = errorMessage,
+                text = viewModel.errorMessage,
                 color = Color.Red,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
@@ -169,37 +169,11 @@ fun SignupScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit, navigateBack: (
         ){
             Button(
                 onClick = {
-                    errorMessage = ""
-                    when {
-                        email.isBlank() && password.isBlank() -> {
-                            errorMessage = "No has introducido ninguna credencial"
-                            return@Button
-                        }
-                        email.isBlank() -> {
-                            errorMessage = "No has introducido ningún correo."
-                            return@Button
-                        }
-                        !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
-                            errorMessage = "Introduce un correo electrónico válido."
-                            return@Button
-                        }
-                        password.isBlank() -> {
-                            errorMessage = "No has introducido ninguna contrasña"
-                            return@Button
-                        }
-                        !password.isBlank() && confirmarPassword.isBlank() -> {
-                            errorMessage = "Debes confirmar la contraseña de nuevo"
-                            return@Button
-                        }
-                        password!=confirmarPassword -> {
-                            errorMessage = "Las contrasñas no coinciden. Vuelve a intentarlo"
-                            return@Button
-                        }
-                        else -> {
-                            viewModel.crearUsuario(auth = auth, email = email, password = password)
-                            if (viewModel.confirmar){
-                                navigateToMenu()
-                            }
+                    viewModel.validarCredenciales(email = email, password = password)
+                    if (viewModel.errorMessage.isEmpty()){
+                        viewModel.crearUsuario(auth = auth, email = email, password = password)
+                        if (viewModel.confirmar){
+                            navigateToMenu()
                         }
                     }
                 },
@@ -216,7 +190,10 @@ fun SignupScreen(auth: FirebaseAuth, navigateToMenu: () -> Unit, navigateBack: (
                 ),
                 modifier = Modifier.size(width = 220.dp, height = 60.dp)
             ) {
-                Text("Registrarme")
+                Text(
+                    text = "Registrarme",
+                    fontSize = 24.sp
+                )
             }
         }
     }

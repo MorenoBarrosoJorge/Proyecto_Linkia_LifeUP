@@ -52,7 +52,6 @@ fun LoginScreen(auth: FirebaseAuth, viewModel: LoginViewModel = viewModel(), nav
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -158,7 +157,8 @@ fun LoginScreen(auth: FirebaseAuth, viewModel: LoginViewModel = viewModel(), nav
             Text(
                 text = "Iniciar sesión",
                 fontSize = 24.sp,
-                color = Color.White)
+                color = Color.White
+            )
         }
         Spacer(Modifier.height(12.dp))
     }
