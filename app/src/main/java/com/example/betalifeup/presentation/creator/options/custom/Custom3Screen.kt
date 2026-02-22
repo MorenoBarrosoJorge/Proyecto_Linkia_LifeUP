@@ -160,7 +160,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
                     onClick = {
                         viewModel.addMision(
                             nivelId = nivelId,
-                            titulo = "Misión ${misionesOrdenadas.size+1}",
+                            titulo = "Misión",
                             descripcion = "Testeando creación de misiones"
                         )
                         mostrarDialogo = false
@@ -256,7 +256,7 @@ fun Custom3Screen(nivelId: String, onBack: () -> Unit, viewModel: CustomMetaView
             dismissButton = {
                 TextButton(onClick = {
                     misionSeleccionadaId = null
-                    mostrarModificar = false
+                    mostrarEliminar = false
                 }) {
                     Text("Cancelar")
                 }
